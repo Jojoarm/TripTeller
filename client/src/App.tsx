@@ -1,7 +1,19 @@
+import { Route, Routes } from 'react-router';
+import Navbar from './components/user/Navbar';
+import Home from './pages/user/Home';
+import Footer from './components/user/Footer';
+
 const App = () => {
   return (
-    <div className="text-red-300">
-      <p className="text-green-700 bg-black">Hello World!</p>
+    <div>
+      {/* User */}
+      <Navbar />
+      <div className="min-h-70vh ">
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </div>
+      <Footer />
     </div>
   );
 };
