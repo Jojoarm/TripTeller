@@ -26,10 +26,7 @@ const Home = () => {
         <SearchForm />
       </div>
 
-      {/* Featured Destinations */}
       <FeaturedDestinations />
-
-      {/* Handpicked Trips */}
       <HandpickedTrips />
       <Testimonials />
       <NewsLetter />
