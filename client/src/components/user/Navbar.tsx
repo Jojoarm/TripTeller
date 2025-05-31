@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
-import { userDummyData } from '../../assets/assets';
+import { Link } from 'react-router';
 import { LayoutDashboard, LogOut, Settings } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import * as apiClient from '../../api-client';
 
 const Navbar = () => {
-  const user = userDummyData;
+  const { user, navigate, location } = useAppContext();
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Trips', path: '/trips' },
@@ -38,9 +41,6 @@ const Navbar = () => {
     };
   }, [isUserOpen]);
 
-  const location = useLocation();
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (location.pathname !== '/') {
       setIsScrolled(true);
@@ -58,6 +58,23 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [location.pathname]);
+
+  //user logout
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: apiClient.logOut,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
+      toast.success('Logged Out!');
+      navigate('/');
+    },
+    onError: (error: Error) => {
+      toast.error((error as Error).message);
+    },
+  });
+  const handleLogout = () => {
+    mutation.mutate();
+  };
 
   return (
     <nav
@@ -95,23 +112,38 @@ const Navbar = () => {
       <div className="flex gap-1">
         {user ? (
           <div className="relative " ref={userMenuRef}>
-            <img
-              src={`${user.image}`}
-              alt="profile picture"
-              className="size-8 md:size-12 rounded-full object-contain cursor-pointer"
+            <div
               onClick={() => setIsUserOpen(!isUserOpen)}
-            />
-
+              className="size-8 md:size-12 flex justify-center items-center rounded-full bg-gray-600 overflow-hidden cursor-pointer"
+            >
+              {user.image ? (
+                <img
+                  src={`${user?.image}`}
+                  alt="profile picture"
+                  className=" object-cover "
+                />
+              ) : (
+                <p className="text-center text-white font-bold text-2xl">
+                  {user.username[0]}
+                </p>
+              )}
+            </div>
             {/* User Menu */}
             {isUserOpen && (
               <div className="absolute top-12 md:top-15 right-0 w-[300px] md:w-[350px] bg-white rounded-2xl shadow shadow-black pb-7">
                 <div className="flex border-b border-gray-300 gap-5 p-5">
-                  <div className="w-14">
-                    <img
-                      src={`${user.image}`}
-                      alt="profile picture"
-                      className="size-8 md:size-12 rounded-full object-contain m-auto"
-                    />
+                  <div className="w-14 flex justify-center items-center  overflow-hidden ">
+                    {user.image ? (
+                      <img
+                        src={`${user.image}`}
+                        alt="profile picture"
+                        className="size-8 md:size-12 rounded-full object-contain m-auto"
+                      />
+                    ) : (
+                      <p className="text-center text-white bg-gray-600 rounded-full px-3 md:px-4 py-1 md:py-1.5 font-bold text-xl md:text-2xl">
+                        {user.username[0]}
+                      </p>
+                    )}
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold">{user.username}</p>
@@ -145,7 +177,10 @@ const Navbar = () => {
                     <p className="flex-1 text-gray-700">My Bookings</p>
                   </div>
                 )}
-                <div className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer">
+                <div
+                  onClick={handleLogout}
+                  className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer"
+                >
                   <div className="w-14 ">
                     <LogOut className="size-5 text-gray-700 m-auto" />
                   </div>
@@ -208,7 +243,6 @@ const Navbar = () => {
         )}
       </div>
     </nav>
-    // </div>
   );
 };
 

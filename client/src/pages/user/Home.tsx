@@ -3,8 +3,10 @@ import HandpickedTrips from '@/components/user/HandpickedTrips';
 import NewsLetter from '@/components/user/NewsLetter';
 import SearchForm from '@/components/user/SearchForm';
 import Testimonials from '@/components/user/Testimonials';
+import { useAppContext } from '@/context/AppContext';
 
 const Home = () => {
+  const { navigate } = useAppContext();
   return (
     <div>
       {/* Hero Section */}
@@ -20,7 +22,10 @@ const Home = () => {
           set your preferences and explore with confidence
         </p>
 
-        <button className="px-12 py-2 rounded-md bg-primary text-white cursor-pointer hover:bg-white hover:text-primary transition-all ease-in">
+        <button
+          onClick={() => navigate('/sign-in')}
+          className="px-12 py-2 rounded-md bg-primary text-white cursor-pointer hover:bg-white hover:text-primary transition-all ease-in"
+        >
           Get Started
         </button>
         <SearchForm />

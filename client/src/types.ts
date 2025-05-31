@@ -3,11 +3,11 @@ export type UserType = {
   username: string;
   email: string;
   image: string;
-  status: string;
+  status: 'admin' | 'user';
   createdAt: string;
   updatedAt: string;
   recentSearchedCountries: string[];
-  trips: TripType[];
+  trips: string[];
 };
 
 export interface TripType {
