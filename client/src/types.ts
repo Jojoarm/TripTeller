@@ -38,8 +38,8 @@ export interface TripType {
     }[];
   }[];
   imageUrls: string[];
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type TestimonialType = {

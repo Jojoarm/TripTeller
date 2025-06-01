@@ -9,7 +9,7 @@ export interface UserType {
   status: 'admin' | 'user';
   createdAt: Date;
   updatedAt: Date;
-  recentSearchedCountries: string[];
+  recentSearchedDestinations: string[];
   trips: mongoose.Types.ObjectId[];
 }
 
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String },
     image: { type: String, required: false },
     status: { type: String, enum: ['admin', 'user'], default: 'user' },
-    recentSearchedCountries: { type: [String], default: [] },
+    recentSearchedDestinations: { type: [String], default: [] },
     trips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TripModel' }],
   },
   { timestamps: true }

@@ -4,6 +4,7 @@ import {
   googleAuth,
   signIn,
   signUp,
+  storeRecentSearchedDestinations,
   userLogout,
 } from '../controllers/userController';
 import {
@@ -18,6 +19,7 @@ userRouter.post('/sign-up', validateUserSignupRequest, signUp);
 userRouter.post('/sign-in', validateUserLoginRequest, signIn);
 userRouter.post('/google-auth', googleAuth);
 userRouter.get('/fetch-user', verifyToken, fetchUser);
+userRouter.post('/recent-search', verifyToken, storeRecentSearchedDestinations);
 userRouter.post('/logout', userLogout);
 
 export default userRouter;

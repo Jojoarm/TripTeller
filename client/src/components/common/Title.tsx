@@ -1,11 +1,16 @@
 type TitleProps = {
   title: string;
   subtitle: string;
+  align?: string;
 };
 
-const Title = ({ title, subtitle }: TitleProps) => {
+const Title = ({ title, subtitle, align }: TitleProps) => {
   return (
-    <div className="flex flex-col text-center items-center gap-1">
+    <div
+      className={`flex flex-col justify-center items-center text-center ${
+        align === 'left' && 'items-start text-left'
+      }`}
+    >
       <h1 className="font-semibold font-playfair text-4xl md-text-[40px]">
         {title}
       </h1>

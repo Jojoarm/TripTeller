@@ -171,3 +171,30 @@ export const fetchUser = async (req: Request, res: Response): Promise<any> => {
     res.status(500).send({ success: false, message: 'Error getting user!' });
   }
 };
+
+// Store User Recent SearchedCities
+export const storeRecentSearchedDestinations = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { destination } = req.body;
+
+    const userId = req.userId;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    if (user?.recentSearchedDestinations.length < 3) {
+      user?.recentSearchedDestinations.push(destination);
+    } else {
+      user?.recentSearchedDestinations.shift();
+      user?.recentSearchedDestinations.push(destination);
+    }
+    await user.save();
+    res.json({ success: true, message: 'City added' });
+  } catch (error) {
+    res.json({ success: false, message: (error as Error).message });
+  }
+};

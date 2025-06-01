@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast';
 import type { RegisterFormData } from './components/common/SignUp';
 import type { SignInFormData } from './components/common/SignIn';
+import type { SearchFormData } from './components/user/SearchForm';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -63,6 +64,21 @@ export const fetchUser = async () => {
   if (responseBody.success) {
     return responseBody.userData;
   } else {
+    return null;
+  }
+};
+
+//save recent searches
+export const saveSearchedDestination = async (formData: SearchFormData) => {
+  const response = await fetch(`${API_BASE_URL}/api/users/recent-search`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+  });
+  if (!response.ok) {
     return null;
   }
 };
