@@ -10,6 +10,30 @@ export type UserType = {
   trips: string[];
 };
 
+export interface Country {
+  name: string;
+  coordinates: [number, number];
+  value: string;
+  openStreetMap?: string;
+}
+
+export interface Activity {
+  time: string;
+  description: string;
+}
+
+export interface DayPlan {
+  day: number;
+  location: string;
+  activities: Activity[];
+}
+
+export interface Location {
+  city: string;
+  coordinates: [number, number];
+  openStreetMap: string;
+}
+
 export interface TripType {
   _id: string;
   userId: string;
@@ -24,19 +48,21 @@ export interface TripType {
   groupType: string;
   bestTimeToVisit: string[];
   weatherInfo: string[];
-  location: {
-    city: string;
-    coordinates: [number, number];
-    openStreetMap: string;
-  };
-  itinerary: {
-    day: number;
-    location: string;
-    activities: {
-      time: string;
-      description: string;
-    }[];
-  }[];
+  itinerary: DayPlan[];
+  location: Location;
+  // location: {
+  //   city: string;
+  //   coordinates: [number, number];
+  //   openStreetMap: string;
+  // };
+  // itinerary: {
+  //   day: number;
+  //   location: string;
+  //   activities: {
+  //     time: string;
+  //     description: string;
+  //   }[];
+  // }[];
   imageUrls: string[];
   createdAt: string;
   updatedAt: string;

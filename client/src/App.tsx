@@ -5,6 +5,7 @@ import SignIn from './components/common/SignIn';
 import SignUp from './components/common/SignUp';
 import { Toaster } from 'react-hot-toast';
 import Trips from './pages/user/Trips';
+import TripDetails from './pages/user/TripDetails';
 
 const App = () => {
   const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/trips" element={<Trips />} />
+          <Route path="/trips/:id" element={<TripDetails />} />
         </Route>
 
         {/* Admin Routes */}

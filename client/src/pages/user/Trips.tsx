@@ -3,6 +3,7 @@ import { CheckBox, RadioButton } from '@/components/common/FilterButtons';
 import Pagination from '@/components/common/Pagination';
 import StarRating from '@/components/common/StarRating';
 import Title from '@/components/common/Title';
+import { useAppContext } from '@/context/AppContext';
 import { getFirstWord } from '@/lib/utils';
 import type { TripType } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
@@ -21,6 +22,7 @@ type SortOption =
 
 const Trips = () => {
   const trips = tripsDummyData;
+  const { navigate, currency } = useAppContext();
   const [openFilters, setOpenFilters] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
@@ -166,6 +168,10 @@ const Trips = () => {
           <div
             key={index}
             className="flex flex-col  md:flex-row gap-2 md:gap-10 p-4 my-4 md:my-10 items-start border-b border-gray-300 group bg-slate-50 rounded-2xl"
+            onClick={() => {
+              navigate(`/trips/${trip._id}`);
+              scrollTo(0, 0);
+            }}
           >
             <img
               src={trip.imageUrls[0]}
@@ -206,7 +212,8 @@ const Trips = () => {
               <div className="flex flex-row gap-1 items-end">
                 <p className=" font-medium text-gray-500">Budget: </p>
                 <p className=" font-medium text-gray-700">
-                  ${trip.estimatedPrice}
+                  {currency}
+                  {trip.estimatedPrice}
                 </p>
               </div>
             </div>
