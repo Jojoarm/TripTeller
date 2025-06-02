@@ -1,5 +1,5 @@
-import { tripsDummyData } from '@/assets/assets';
 import { CheckBox, RadioButton } from '@/components/common/FilterButtons';
+import Loader from '@/components/common/Loader';
 import Pagination from '@/components/common/Pagination';
 import StarRating from '@/components/common/StarRating';
 import Title from '@/components/common/Title';
@@ -7,7 +7,7 @@ import { useAppContext } from '@/context/AppContext';
 import { getFirstWord } from '@/lib/utils';
 import type { TripType } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 
 type SelectedFilters = {
   interests: string[];
@@ -21,8 +21,8 @@ type SortOption =
   | '';
 
 const Trips = () => {
-  const trips = tripsDummyData;
-  const { navigate, currency } = useAppContext();
+  const { currency, trips } = useAppContext();
+  const navigate = useNavigate();
   const [openFilters, setOpenFilters] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
@@ -122,7 +122,7 @@ const Trips = () => {
   //Filter and sort trips based on the selected filters and sort options
   const filteredTrips = useMemo(() => {
     return trips
-      .filter(
+      ?.filter(
         (trip) =>
           matchesInterests(trip) &&
           matchesPriceRange(trip) &&
@@ -149,6 +149,11 @@ const Trips = () => {
   }, [limit]);
 
   const [currentPage, setCurrentPage] = useState(1);
+
+  if (!filteredTrips) {
+    return <Loader />;
+  }
+
   const totalPages = Math.ceil(filteredTrips.length / limit);
   const startIndex = (currentPage - 1) * limit;
   const currentTrips = filteredTrips.slice(startIndex, startIndex + limit);

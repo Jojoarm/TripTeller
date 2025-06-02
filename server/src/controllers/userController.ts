@@ -30,7 +30,7 @@ export const signUp = async (req: Request, res: Response): Promise<any> => {
     await newUser.save();
 
     const token = jwt.sign(
-      { userId: newUser._id },
+      { userId: newUser._id, role: newUser.status },
       process.env.JWT_SECRET_KEY as string,
       { expiresIn: '7d' }
     );
@@ -67,7 +67,7 @@ export const signIn = async (req: Request, res: Response): Promise<any> => {
     }
 
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.status },
       process.env.JWT_SECRET_KEY as string,
       { expiresIn: '7d' }
     );
@@ -118,7 +118,7 @@ export const googleAuth = async (req: Request, res: Response): Promise<any> => {
     }
 
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.status },
       process.env.JWT_SECRET_KEY as string,
       { expiresIn: '7d' }
     );

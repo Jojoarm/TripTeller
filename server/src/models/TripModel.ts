@@ -81,6 +81,6 @@ const TripSchema = new Schema<TripDocument>(
   }
 );
 
-const TripModel = mongoose.model<TripDocument>('Trip', TripSchema);
+const TripModel = mongoose.model<TripDocument>('TripModel', TripSchema);
 
 export default TripModel;

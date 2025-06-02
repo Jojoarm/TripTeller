@@ -43,6 +43,21 @@
   font-family: Playfair !important;
 }
 
+@layer components {
+  .select {
+    @apply appearance-none p-3.5 pr-10 border w-full border-light-400 rounded-xl text-lg text-gray-100 font-normal bg-white;
+  }
+  .select-pointer {
+    @apply pointer-events-none absolute right-3 top-1/2 -translate-y-1/2;
+  }
+  .input-field {
+    @apply w-full flex flex-col gap-2.5 px-6 text-base;
+  }
+  .form-input {
+    @apply p-3.5 border border-light-400 rounded-xl text-base text-dark-300 font-normal;
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

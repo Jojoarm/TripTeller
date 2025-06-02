@@ -10,6 +10,7 @@ export function getFirstWord(input: string = ''): string {
 }
 
 import { useEffect, useState } from 'react';
+import type { TripFormData } from '@/pages/admin/CreateTrip';
 
 const getLimit = (width: number) => {
   // if (width < 640) return 2;
@@ -32,4 +33,10 @@ export const useResponsiveLimit = () => {
   }, []);
 
   return limit;
+};
+
+export const formatKey = (key: keyof TripFormData) => {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase());
 };

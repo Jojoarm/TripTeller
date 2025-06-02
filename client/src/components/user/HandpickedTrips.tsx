@@ -1,21 +1,22 @@
-import { tripsDummyData } from '@/assets/assets';
 import Title from '../common/Title';
 import TripCard from '../common/TripCard';
 import { useEffect, useState } from 'react';
 import Pagination from '../common/Pagination';
-import { useResponsiveLimit } from '@/lib/utils';
+// import { useResponsiveLimit } from '@/lib/utils';
+import { useAppContext } from '@/context/AppContext';
 
 const HandpickedTrips = () => {
-  const trips = tripsDummyData;
+  const { trips } = useAppContext();
 
   //Handling limit to different screen sizes
-  const limit = useResponsiveLimit();
+  const limit = 4;
   // Reset to first page when limit changes to avoid index bugs
   useEffect(() => {
     setCurrentPage(1);
   }, [limit]);
-
   const [currentPage, setCurrentPage] = useState(1);
+
+  if (!trips) return null;
   const totalPages = Math.ceil(trips.length / limit);
   const startIndex = (currentPage - 1) * limit;
   const currentTrips = trips.slice(startIndex, startIndex + limit);
@@ -53,11 +54,13 @@ const HandpickedTrips = () => {
           )
         )}
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

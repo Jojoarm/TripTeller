@@ -2,6 +2,7 @@ import toast from 'react-hot-toast';
 import type { RegisterFormData } from './components/common/SignUp';
 import type { SignInFormData } from './components/common/SignIn';
 import type { SearchFormData } from './components/user/SearchForm';
+import type { TripFormData } from './pages/admin/CreateTrip';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -82,3 +83,46 @@ export const saveSearchedDestination = async (formData: SearchFormData) => {
     return null;
   }
 };
+
+//create trip by admin
+export const createTrip = async (formData: TripFormData) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/create-trip`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    toast.success(responseBody.message);
+  } else {
+    toast.error(responseBody.message);
+    throw new Error(responseBody.message);
+  }
+};
+
+//fetch Trips
+export const fetchTrips = async () => {
+  const response = await fetch(`${API_BASE_URL}/api/trips/trips`);
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    return responseBody.tripData;
+  } else {
+    return null;
+  }
+};
+
+//fetch trip
+// export const getTrip = async () => {
+//   const response = await fetch(`${API_BASE_URL}/api/trips/trips/:id`);
+//   const responseBody = await response.json();
+//   console.log(responseBody);
+//   if (responseBody.success) {
+//     return responseBody.tripData;
+//   } else {
+//     return null;
+//   }
+// };

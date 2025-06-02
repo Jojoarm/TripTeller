@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,7 +7,9 @@ import toast from 'react-hot-toast';
 import * as apiClient from '../../api-client';
 
 const Navbar = () => {
-  const { user, navigate, location } = useAppContext();
+  const { user } = useAppContext();
+  const navigate = useNavigate();
+
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Trips', path: '/trips' },
@@ -67,6 +69,7 @@ const Navbar = () => {
       await queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
       toast.success('Logged Out!');
       navigate('/');
+      scrollTo(0, 0);
     },
     onError: (error: Error) => {
       toast.error((error as Error).message);
@@ -85,7 +88,13 @@ const Navbar = () => {
       }`}
     >
       {/* Logo */}
-      <Link to="/" className="flex items-center gap-2">
+      <Link
+        onClick={() => {
+          scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        to="/"
+        className="flex items-center gap-2"
+      >
         <img src="/assets/icons/Logo.png" alt="logo" className="h-12" />
       </Link>
 
@@ -95,6 +104,9 @@ const Navbar = () => {
           <Link
             key={i}
             to={link.path}
+            onClick={() => {
+              scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className={`group flex flex-col gap-0.5 ${
               isScrolled ? 'text-gray-700' : 'text-white'
             }`}
@@ -158,7 +170,10 @@ const Navbar = () => {
                 </div>
                 {user.status === 'admin' ? (
                   <div
-                    onClick={() => navigate('/admin-dashboard')}
+                    onClick={() => {
+                      navigate('/admin/dashboard');
+                      scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer"
                   >
                     <div className="w-14">
@@ -168,7 +183,10 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <div
-                    onClick={() => navigate('/my-bookings')}
+                    onClick={() => {
+                      navigate('/my-bookings');
+                      scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer"
                   >
                     <div className="w-14">
@@ -191,7 +209,10 @@ const Navbar = () => {
           </div>
         ) : (
           <button
-            onClick={() => navigate('/sign-in')}
+            onClick={() => {
+              navigate('/sign-in');
+              scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="hidden md:block bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500 cursor-pointer"
           >
             Login
@@ -235,7 +256,10 @@ const Navbar = () => {
 
         {!user && (
           <button
-            onClick={() => navigate('/sign-in')}
+            onClick={() => {
+              navigate('/sign-in');
+              scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500"
           >
             Login

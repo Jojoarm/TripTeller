@@ -1,4 +1,3 @@
-import { tripsDummyData } from '@/assets/assets';
 import Loader from '@/components/common/Loader';
 import StarRating from '@/components/common/StarRating';
 import TripCard from '@/components/common/TripCard';
@@ -12,22 +11,28 @@ export type Params = {
 };
 
 const TripDetails = () => {
-  const trips = tripsDummyData;
+  // const trips = tripsDummyData;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
   const { id } = useParams();
-  const { currency } = useAppContext();
+  const { currency, trips } = useAppContext();
   const [trip, setTrip] = useState<TripType | null>(null);
   const [mainImage, setMainImage] = useState<string>('');
 
-  useEffect(() => {
-    if (trips.length > 0 && id) {
-      const existingTrip = trips.find((trip) => trip._id === id);
-      if (existingTrip) {
-        setTrip(existingTrip);
-        setMainImage(existingTrip.imageUrls[0]);
-      }
+  const getTrip = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/trips/trips/${id}`);
+    const responseBody = await response.json();
+    if (responseBody.success) {
+      setTrip(responseBody.tripData);
+      setMainImage(responseBody.tripData.imageUrls[0]);
+    } else {
+      return null;
     }
-  }, [trips, id]);
+  };
+
+  useEffect(() => {
+    getTrip();
+  }, [id]);
 
   if (!trip) {
     return <Loader />;
@@ -110,6 +115,7 @@ const TripDetails = () => {
           <img
             src={mainImage}
             alt="main trip photo"
+            referrerPolicy="no-referrer"
             className="w-full h-[400px] rounded-4xl shadow-md border border-gray-200 shadow-gray-600  object-cover transition-transform duration-300 hover:scale-103"
           />
         </div>
@@ -121,6 +127,7 @@ const TripDetails = () => {
                 alt="trip photo"
                 key={index}
                 onClick={() => setMainImage(image)}
+                referrerPolicy="no-referrer"
                 className={`w-full h-[190px] rounded-4xl shadow-md object-cover cursor-pointer ${
                   mainImage === image && 'outline-3 outline-slate-500'
                 }`}
@@ -219,7 +226,7 @@ const TripDetails = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7">
           {trips
-            .slice(0, 3)
+            ?.slice(0, 3)
             .map(
               ({
                 _id,

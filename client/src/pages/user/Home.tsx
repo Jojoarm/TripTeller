@@ -3,10 +3,10 @@ import HandpickedTrips from '@/components/user/HandpickedTrips';
 import NewsLetter from '@/components/user/NewsLetter';
 import SearchForm from '@/components/user/SearchForm';
 import Testimonials from '@/components/user/Testimonials';
-import { useAppContext } from '@/context/AppContext';
+import { useNavigate } from 'react-router';
 
 const Home = () => {
-  const { navigate } = useAppContext();
+  const navigate = useNavigate();
   return (
     <div>
       {/* Hero Section */}

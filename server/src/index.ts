@@ -4,6 +4,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/dbConfig';
 import userRouter from './routes/userRoutes';
+import adminRouter from './routes/adminRoutes';
+import tripRouter from './routes/tripRoutes';
 
 const port = process.env.PORT || 3000;
 
@@ -24,6 +26,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/users', userRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/trips', tripRouter);
 
 app.listen(port, () => {
   console.log('Server running on localhost:', port);
