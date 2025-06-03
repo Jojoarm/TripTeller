@@ -8,13 +8,14 @@ import adminRouter from './routes/adminRoutes';
 import tripRouter from './routes/tripRoutes';
 
 const port = process.env.PORT || 3000;
+const FrontendUrl = process.env.FRONTEND_URL;
 
 connectDB();
 
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: FrontendUrl,
     credentials: true,
   })
 );
