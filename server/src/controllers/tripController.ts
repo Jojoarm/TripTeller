@@ -6,7 +6,7 @@ export const fetchTrips = async (req: Request, res: Response): Promise<any> => {
   try {
     const trips = await TripModel.find();
     if (!trips) {
-      return res.status(400).json({ message: 'No trip found' });
+      return res.status(400).json({ message: 'Trips not found' });
     }
 
     res.status(201).json({ success: true, tripData: trips });
