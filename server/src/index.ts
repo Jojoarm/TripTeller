@@ -13,12 +13,7 @@ const FrontendUrl = process.env.FRONTEND_URL;
 connectDB();
 
 const app = express();
-app.use(
-  cors({
-    origin: FrontendUrl,
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
