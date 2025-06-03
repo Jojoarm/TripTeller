@@ -17,7 +17,7 @@ const verifyToken = async (
 ): Promise<any> => {
   const token = req.cookies['auth_token'];
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized!' });
+    return res.status(401).json({ message: 'No Auth token!' });
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);

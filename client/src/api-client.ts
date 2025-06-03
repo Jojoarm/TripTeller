@@ -65,6 +65,7 @@ export const fetchUser = async () => {
   if (responseBody.success) {
     return responseBody.userData;
   } else {
+    console.log('User not found in vercel');
     return null;
   }
 };
