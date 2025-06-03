@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 const GoogleLoginButton = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
   const handleCallbackResponse = async (
     response: google.accounts.id.CredentialResponse
@@ -15,7 +16,7 @@ const GoogleLoginButton = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:3000/api/users/google-auth',
+        `${API_BASE_URL}/api/users/google-auth`,
         {
           tokenId: credential,
         },
