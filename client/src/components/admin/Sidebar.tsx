@@ -7,7 +7,7 @@ const Sidebar = () => {
   const { user } = useAppContext();
   const handleLogout = () => {};
   return (
-    <section className="flex flex-col fixed h-full pt-12 lg:pt-10">
+    <section className="flex flex-col h-full  pt-12 lg:pt-10">
       {/* Logo */}
       <Link
         to="/"

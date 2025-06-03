@@ -10,7 +10,7 @@ const Home = () => {
   return (
     <div>
       {/* Hero Section */}
-      <div className="flex flex-col items-start justify-center gap-4 px-4 md:px-16 lg:px-24 xl:px-32 text-white  bg-sky-700/[0.4]  bg-[url(assets/images/hero2.jpg)] bg-cover bg-center h-screen bg-no-repeat bg-blend-darken">
+      <div className="flex flex-col items-start justify-center gap-4 px-4 md:px-16 lg:px-24 xl:px-32 text-white  bg-sky-600/[0.4]  bg-[url(/assets/images/background2.jpg)] bg-cover bg-center h-screen bg-no-repeat bg-blend-darken">
         <p className="bg-slate-900/50 px-3.5 py-1 rounded-full mt-20">
           The Ultimate Trip Experience
         </p>

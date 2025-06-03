@@ -1,8 +1,8 @@
-import { useAppContext } from '@/context/AppContext';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as apiClient from '../../api-client';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 export type SearchFormData = {
   destination: string;
@@ -10,7 +10,7 @@ export type SearchFormData = {
 };
 
 const SearchForm = () => {
-  const { navigate } = useAppContext();
+  const navigate = useNavigate();
   const [searchedDestination, setSearchedDestination] = useState('');
   const { register, handleSubmit } = useForm<SearchFormData>();
 

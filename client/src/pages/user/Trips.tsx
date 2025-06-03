@@ -37,12 +37,16 @@ const Trips = () => {
     'Beaches',
     'Shopping',
     'Night Life',
+    'Food',
+    'Local',
+    'Museums',
+    'Photography',
   ];
   const priceRanges = [
-    { label: 'Low', value: '0 to 2500' },
-    { label: 'Standard', value: '2501 to 10000' },
-    { label: 'Premium', value: '10001 to 20000' },
-    { label: 'Luxury', value: '20001 to 30000' },
+    { label: 'Budget', value: '0 to 2000' },
+    { label: 'Mid-Range', value: '2001 to 6000' },
+    { label: 'Luxury', value: '6001 to 9000' },
+    { label: 'Premium', value: '9000 to 15000' },
   ];
 
   const sortOptions: SortOption[] = [

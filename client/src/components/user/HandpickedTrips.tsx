@@ -1,28 +1,10 @@
 import Title from '../common/Title';
 import TripCard from '../common/TripCard';
-import { useEffect, useState } from 'react';
-import Pagination from '../common/Pagination';
-// import { useResponsiveLimit } from '@/lib/utils';
 import { useAppContext } from '@/context/AppContext';
 
 const HandpickedTrips = () => {
   const { trips } = useAppContext();
 
-  //Handling limit to different screen sizes
-  const limit = 4;
-  // Reset to first page when limit changes to avoid index bugs
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [limit]);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  if (!trips) return null;
-  const totalPages = Math.ceil(trips.length / limit);
-  const startIndex = (currentPage - 1) * limit;
-  const currentTrips = trips.slice(startIndex, startIndex + limit);
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
   return (
     <div className="px-4 md:px-16 lg:px-24 xl:px-32 py-10 md:py-20">
       <Title
@@ -30,37 +12,32 @@ const HandpickedTrips = () => {
         subtitle="Browse well planned trips designed for different travel styles and interests"
       />
       <div className="flex flex-wrap justify-center gap-10 mt-10">
-        {currentTrips?.map(
-          ({
-            _id,
-            title,
-            imageUrls,
-            country,
-            location,
-            interests,
-            travelStyle,
-            estimatedPrice,
-          }) => (
-            <TripCard
-              id={_id}
-              key={_id}
-              title={title}
-              country={country}
-              location={location}
-              imageUrl={imageUrls[0]}
-              tags={[interests, travelStyle]}
-              price={estimatedPrice}
-            />
-          )
-        )}
+        {trips
+          ?.slice(0, 4)
+          ?.map(
+            ({
+              _id,
+              title,
+              imageUrls,
+              country,
+              location,
+              interests,
+              travelStyle,
+              estimatedPrice,
+            }) => (
+              <TripCard
+                id={_id}
+                key={_id}
+                title={title}
+                country={country}
+                location={location}
+                imageUrl={imageUrls[0]}
+                tags={[interests, travelStyle]}
+                price={estimatedPrice}
+              />
+            )
+          )}
       </div>
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-        />
-      )}
     </div>
   );
 };

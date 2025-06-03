@@ -21,12 +21,13 @@ interface AppContextType {
   //   navigate: ReturnType<typeof useNavigate>;
   //   location: ReturnType<typeof useLocation>;
   currency: string;
+  isAuthLoading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data: user } = useQuery({
+  const { data: user, isPending: isAuthLoading } = useQuery({
     queryKey: ['fetchUser'],
     queryFn: apiClient.fetchUser,
   });
@@ -63,6 +64,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     currency,
     countries,
     trips,
+    isAuthLoading,
     // navigate,
     // location,
   };

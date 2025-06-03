@@ -133,6 +133,7 @@ const Navbar = () => {
                   src={`${user?.image}`}
                   alt="profile picture"
                   className=" object-cover "
+                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <p className="text-center text-white font-bold text-2xl">
@@ -149,6 +150,7 @@ const Navbar = () => {
                       <img
                         src={`${user.image}`}
                         alt="profile picture"
+                        referrerPolicy="no-referrer"
                         className="size-8 md:size-12 rounded-full object-contain m-auto"
                       />
                     ) : (
