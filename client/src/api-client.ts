@@ -106,11 +106,16 @@ export const createTrip = async (formData: TripFormData) => {
 };
 
 //fetch Trips
-export const fetchTrips = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/trips/trips`);
+export const fetchTrips = async (queryString?: string) => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/trips/trips?${queryString}`
+  );
   const responseBody = await response.json();
   if (responseBody.success) {
-    return responseBody.tripData;
+    return {
+      tripData: responseBody.tripData,
+      totalCount: responseBody.pagination.totalItems,
+    };
   } else {
     return null;
   }

@@ -1,6 +1,6 @@
 import FeaturedDestinations from '@/components/user/FeaturedDestinations';
-import HandpickedTrips from '@/components/user/HandpickedTrips';
 import NewsLetter from '@/components/user/NewsLetter';
+import PopularTrips from '@/components/user/PopularTrips';
 import SearchForm from '@/components/user/SearchForm';
 import Testimonials from '@/components/user/Testimonials';
 import { useNavigate } from 'react-router';
@@ -32,7 +32,7 @@ const Home = () => {
       </div>
 
       <FeaturedDestinations />
-      <HandpickedTrips />
+      <PopularTrips />
       <Testimonials />
       <NewsLetter />
     </div>

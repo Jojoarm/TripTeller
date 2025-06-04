@@ -18,8 +18,6 @@ interface AppContextType {
   user: UserType | null;
   countries: Country[] | null;
   trips: TripType[] | null;
-  //   navigate: ReturnType<typeof useNavigate>;
-  //   location: ReturnType<typeof useLocation>;
   currency: string;
   isAuthLoading: boolean;
 }
@@ -32,10 +30,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     queryFn: apiClient.fetchUser,
   });
 
-  const { data: trips } = useQuery({
-    queryKey: ['fetchTrips'],
-    queryFn: apiClient.fetchTrips,
+  const { data: tripsResponse } = useQuery({
+    queryKey: ['defaultTrips'],
+    queryFn: () => apiClient.fetchTrips('limit=20&sort=Newest First'),
   });
+  const trips = tripsResponse?.tripData ?? null;
 
   const currency = import.meta.env.VITE_CURRENCY || '$';
   const [countries, setCountries] = useState<Country[] | null>(null);

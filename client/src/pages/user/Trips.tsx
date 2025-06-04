@@ -6,7 +6,7 @@ import Title from '@/components/common/Title';
 import { useAppContext } from '@/context/AppContext';
 import { getFirstWord } from '@/lib/utils';
 import type { TripType } from '@/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 
 type SelectedFilters = {
@@ -21,15 +21,20 @@ type SortOption =
   | '';
 
 const Trips = () => {
-  const { currency, trips } = useAppContext();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+  const { currency } = useAppContext();
   const navigate = useNavigate();
   const [openFilters, setOpenFilters] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [trips, setTrips] = useState<TripType[] | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
     interests: [],
     priceRange: [],
   });
   const [selectedSort, setSelectedSort] = useState<SortOption>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 4;
 
   const interests = [
     'Hiking',
@@ -42,18 +47,67 @@ const Trips = () => {
     'Museums',
     'Photography',
   ];
-  const priceRanges = [
-    { label: 'Budget', value: '0 to 2000' },
-    { label: 'Mid-Range', value: '2001 to 6000' },
-    { label: 'Luxury', value: '6001 to 9000' },
-    { label: 'Premium', value: '9000 to 15000' },
-  ];
+
+  const priceRange = ['Budget', 'Mid-Range', 'Luxury', 'Premium'];
 
   const sortOptions: SortOption[] = [
     'Price Low to High',
     'Price High to Low',
     'Newest First',
   ];
+
+  // Hydrate initial state from URL
+  useEffect(() => {
+    const interestsParam = searchParams.get('interests');
+    const priceRangeParam = searchParams.get('priceRange');
+    const sortParam = searchParams.get('sort');
+    const pageParam = searchParams.get('page');
+
+    setSelectedFilters({
+      interests: interestsParam ? interestsParam.split(',') : [],
+      priceRange: priceRangeParam ? priceRangeParam.split(',') : [],
+    });
+
+    setSelectedSort((sortParam as SortOption) || '');
+    setCurrentPage(pageParam ? parseInt(pageParam) : 1);
+  }, []);
+
+  // Sync URL with state
+  useEffect(() => {
+    const params: Record<string, string> = {};
+
+    if (selectedFilters.interests.length)
+      params.interests = selectedFilters.interests.join(',');
+
+    if (selectedFilters.priceRange.length)
+      params.priceRange = selectedFilters.priceRange.join(',');
+
+    if (selectedSort) params.sort = selectedSort;
+
+    const destination = searchParams.get('destination');
+    if (destination) params.destination = destination;
+
+    if (currentPage > 1) params.page = currentPage.toString();
+
+    params.limit = limit.toString();
+
+    setSearchParams(params);
+  }, [selectedFilters, selectedSort, currentPage]);
+
+  const fetchTrips = async () => {
+    const res = await fetch(
+      `${API_BASE_URL}/api/trips/trips?${searchParams.toString()}`
+    );
+    const data = await res.json();
+    if (data.success) {
+      setTrips(data.tripData);
+      setTotalCount(data.pagination.totalItems);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrips();
+  }, [searchParams]);
 
   //Handle changes for filters and sorting
   const handleFilterChange = (
@@ -62,108 +116,30 @@ const Trips = () => {
     type: keyof SelectedFilters
   ) => {
     setSelectedFilters((prevFilters) => {
-      const updatedFilters = { ...prevFilters };
-      if (checked) {
-        updatedFilters[type].push(value);
-      } else {
-        updatedFilters[type] = updatedFilters[type].filter(
-          (item) => item !== value
-        );
+      const updated = { ...prevFilters };
+      if (checked && !updated[type].includes(value)) {
+        updated[type].push(value);
+      } else if (!checked) {
+        updated[type] = updated[type].filter((item) => item !== value);
       }
-      return updatedFilters;
+      return updated;
     });
   };
-
-  const handleSortChange = (sortOption: SortOption) => {
-    setSelectedSort(sortOption);
-  };
-
-  // Function to check if a client interests matches the selected trips interests
-  const matchesInterests = (trip: TripType) => {
-    return (
-      selectedFilters.interests.length === 0 ||
-      selectedFilters.interests.some((interest) =>
-        trip.interests.toLowerCase().includes(interest.toLowerCase())
-      )
-    );
-  };
-
-  // Function to check if a trip matches the selected price ranges
-  const matchesPriceRange = (trip: TripType) => {
-    return (
-      selectedFilters.priceRange.length === 0 ||
-      selectedFilters.priceRange.some((rangeValue) => {
-        const [min, max] = rangeValue.split(' to ').map(Number);
-        return (
-          Number(trip.estimatedPrice) >= min &&
-          Number(trip.estimatedPrice) <= max
-        );
-      })
-    );
-  };
-
-  //Function to sort trips based on the selected sort option
-  const sortTrips = (a: TripType, b: TripType) => {
-    if (selectedSort === 'Price Low to High')
-      return Number(a.estimatedPrice) - Number(b.estimatedPrice);
-    if (selectedSort === 'Price High to Low')
-      return Number(b.estimatedPrice) - Number(a.estimatedPrice);
-    if (selectedSort === 'Newest First')
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    return 0;
-  };
-
-  //Filter Destination
-  const filterDestination = (trip: TripType) => {
-    const destination = searchParams.get('destination');
-    if (!destination) return true;
-    return (
-      trip.country.toLowerCase().includes(destination.toLowerCase()) ||
-      trip.location.city.toLowerCase().includes(destination.toLowerCase())
-    );
-  };
-
-  //Filter and sort trips based on the selected filters and sort options
-  const filteredTrips = useMemo(() => {
-    return trips
-      ?.filter(
-        (trip) =>
-          matchesInterests(trip) &&
-          matchesPriceRange(trip) &&
-          filterDestination(trip)
-      )
-      .sort(sortTrips);
-  }, [trips, selectedFilters, selectedSort, searchParams]);
 
   //clear all filters
   const clearFilters = () => {
-    setSelectedFilters({
-      interests: [],
-      priceRange: [],
-    });
+    setSelectedFilters({ interests: [], priceRange: [] });
     setSelectedSort('');
+    setCurrentPage(1);
     setSearchParams({});
   };
 
-  //Pagination
-  const limit = 4;
-  // Reset to first page when limit changes to avoid index bugs
+  // Reset to first page on filter/sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [limit]);
+  }, [selectedFilters, selectedSort]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-  if (!filteredTrips) {
-    return <Loader />;
-  }
-
-  const totalPages = Math.ceil(filteredTrips.length / limit);
-  const startIndex = (currentPage - 1) * limit;
-  const currentTrips = filteredTrips.slice(startIndex, startIndex + limit);
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  if (!trips) return <Loader />;
 
   return (
     <div className="flex flex-col-reverse lg:flex-row items-start justify-between py-20 md:pt-35 px-4 md:px-16 lg:px-24 xl:px-32">
@@ -173,7 +149,7 @@ const Trips = () => {
           title="Exclusive Trips"
           subtitle="Take advantage of our AI generated trips and special packages to make plans for your next vacation and create unforgettable memories"
         />
-        {currentTrips.map((trip, index) => (
+        {trips.map((trip, index) => (
           <div
             key={index}
             className="flex flex-col  md:flex-row gap-2 md:gap-10 p-4 my-4 md:my-10 items-start border-b border-gray-300 group bg-slate-50 rounded-2xl"
@@ -231,8 +207,8 @@ const Trips = () => {
 
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
+          totalPages={Math.ceil(totalCount / limit)}
+          onPageChange={setCurrentPage}
         />
       </div>
       <div className="bg-white w-80 border border-gray-300 text-gray-600 max-lg:mb-8 min-lg:mt-16">
@@ -275,13 +251,13 @@ const Trips = () => {
           </div>
           <div className="px-5 pt-5">
             <p className="font-medium text-gray-800 pb-2">Price Range</p>
-            {priceRanges.map((range, index) => (
+            {priceRange.map((range, index) => (
               <CheckBox
                 key={index}
-                label={range.label}
-                selected={selectedFilters.priceRange.includes(range.value)}
+                label={range}
+                selected={selectedFilters.priceRange.includes(range)}
                 onChange={(checked) =>
-                  handleFilterChange(checked, range.value, 'priceRange')
+                  handleFilterChange(checked, range, 'priceRange')
                 }
               />
             ))}
@@ -294,7 +270,7 @@ const Trips = () => {
                 label={option}
                 name="sortOption"
                 selected={selectedSort === option}
-                onChange={() => handleSortChange(option)}
+                onChange={() => setSelectedSort(option)}
               />
             ))}
           </div>

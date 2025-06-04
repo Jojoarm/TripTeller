@@ -6,7 +6,7 @@ export type UserType = {
   status: 'admin' | 'user';
   createdAt: string;
   updatedAt: string;
-  recentSearchedCountries: string[];
+  recentSearchedDestinations: string[];
   trips: string[];
 };
 
@@ -39,7 +39,7 @@ export interface TripType {
   userId: string;
   title: string;
   description: string;
-  estimatedPrice: string;
+  estimatedPrice: number;
   duration: number;
   budget: string;
   travelStyle: string;
@@ -75,4 +75,13 @@ export type TestimonialType = {
   image: string;
   rating: number;
   review: string;
+};
+
+export type FetchTripsParams = {
+  interests?: string[];
+  priceRange?: string[];
+  sort?: string;
+  destination?: string;
+  page?: number;
+  limit?: number;
 };

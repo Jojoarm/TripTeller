@@ -40,8 +40,6 @@ export const createTrip = async (req: Request, res: Response): Promise<any> => {
       req.body;
     const userId = req.userId;
 
-    console.log(userId);
-
     const prompt = `
 You are an AI travel assistant. Based on the user preferences below, generate a travel itinerary in raw JSON (no markdown, no comments, no formatting, just pure JSON).
 
@@ -106,7 +104,10 @@ Respond with a **pure JSON** object matching the following format exactly. DO NO
     if (!response) {
       return res
         .status(500)
-        .json({ success: false, message: 'Failed to generate trip' });
+        .json({
+          success: false,
+          message: 'Failed to generate trip from gemini',
+        });
     }
 
     const tripResult = parseMarkdownToJson(response.text);

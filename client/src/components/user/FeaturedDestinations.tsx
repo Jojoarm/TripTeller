@@ -1,10 +1,49 @@
-import { featuredDestinations } from '@/assets/assets';
 import Title from '../common/Title';
 import { Carousel, CarouselContent, CarouselItem } from '../ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import DestinationCard from '../common/DestinationCard';
+import { useAppContext } from '@/context/AppContext';
+import { getFirstWord } from '@/lib/utils';
+
+type FeaturedDestination = {
+  title: string;
+  imageUrl: string;
+  activities: number;
+  city: string;
+  country: string;
+  rating: number;
+};
 
 const FeaturedDestinations = () => {
+  const { trips } = useAppContext();
+  const countriesSeen = new Set<string>();
+  const featured: FeaturedDestination[] = [];
+
+  trips?.forEach((trip) => {
+    //get all the countries from your trips array
+    if (countriesSeen.has(trip.country)) return;
+    countriesSeen.add(trip.country);
+
+    //get total activities for each country
+    const activities = trip.itinerary.reduce(
+      (total, day) => total + day.activities.length,
+      0
+    );
+
+    featured.push({
+      title: `${trip.country} Tour`,
+      imageUrl: trip.imageUrls[1],
+      activities,
+      city: getFirstWord(trip.location.city),
+      country: trip.country,
+      rating: parseFloat((4 + Math.random()).toFixed(1)),
+    });
+  });
+
+  const featuredDestinations = featured
+    .sort((a, b) => b.activities - a.activities)
+    .slice(0, 6);
+
   return (
     <div className="px-4 md:px-16 lg:px-24 xl:px-32 py-10 md:py-20">
       <Title
@@ -22,8 +61,8 @@ const FeaturedDestinations = () => {
           className="w-full"
         >
           <CarouselContent>
-            {featuredDestinations.map((destination) => (
-              <CarouselItem key={destination._id} className="basis-full">
+            {featuredDestinations.map((destination, index) => (
+              <CarouselItem key={index} className="basis-full">
                 <DestinationCard
                   title={destination.title}
                   city={destination.city}

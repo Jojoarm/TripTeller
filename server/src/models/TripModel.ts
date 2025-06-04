@@ -21,7 +21,7 @@ export interface TripDocument extends Document {
   userId: string;
   title: string;
   description: string;
-  estimatedPrice: string;
+  estimatedPrice: number;
   duration: number;
   budget: string;
   travelStyle: string;
@@ -63,7 +63,7 @@ const TripSchema = new Schema<TripDocument>(
     userId: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    estimatedPrice: { type: String, required: true },
+    estimatedPrice: { type: Number, required: true },
     duration: { type: Number, required: true },
     budget: { type: String, required: true },
     travelStyle: { type: String, required: true },

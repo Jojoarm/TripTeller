@@ -1,6 +1,6 @@
 import Loader from '@/components/common/Loader';
 import StarRating from '@/components/common/StarRating';
-import TripCard from '@/components/common/TripCard';
+import HandpickedTrips from '@/components/user/HandpickedTrips';
 import { useAppContext } from '@/context/AppContext';
 import type { DayPlan, TripType } from '@/types';
 import { useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ const TripDetails = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
   const { id } = useParams();
-  const { currency, trips } = useAppContext();
+  const { currency } = useAppContext();
   const [trip, setTrip] = useState<TripType | null>(null);
   const [mainImage, setMainImage] = useState<string>('');
 
@@ -220,38 +220,7 @@ const TripDetails = () => {
         Pay $ Join Trip
       </button>
 
-      <section className="flex flex-col items-center md:items-start gap-6 my-6 w-full">
-        <h2 className="text-xl md:text-2xl text-dark-400 font-semibold">
-          Popular Trips
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7">
-          {trips
-            ?.slice(0, 3)
-            .map(
-              ({
-                _id,
-                title,
-                imageUrls,
-                country,
-                location,
-                interests,
-                travelStyle,
-                estimatedPrice,
-              }) => (
-                <TripCard
-                  id={_id}
-                  key={_id}
-                  title={title}
-                  country={country}
-                  location={location}
-                  imageUrl={imageUrls[0]}
-                  tags={[interests, travelStyle]}
-                  price={estimatedPrice}
-                />
-              )
-            )}
-        </div>
-      </section>
+      <HandpickedTrips />
     </div>
   );
 };

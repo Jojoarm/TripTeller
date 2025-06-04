@@ -1,4 +1,5 @@
 import { Activity } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 type Props = {
   title: string;
@@ -19,10 +20,15 @@ const DestinationCard = ({
   rating,
   height = 200, // default height
 }: Props) => {
+  const navigate = useNavigate();
   return (
     <div
       className="relative w-full rounded-2xl overflow-hidden shadow-md cursor-pointer group"
       style={{ height }}
+      onClick={() => {
+        navigate(`/trips?destination=${country}`);
+        scrollTo(0, 0);
+      }}
     >
       <span className="absolute top-3 left-3 z-10 px-2 py-0.5 text-sm bg-white text-red-500 font-semibold rounded-full">
         {rating}

@@ -1,18 +1,39 @@
-import Title from '../common/Title';
+import type { TripType } from '@/types';
 import TripCard from '../common/TripCard';
 import { useAppContext } from '@/context/AppContext';
+import { useEffect, useState } from 'react';
 
 const HandpickedTrips = () => {
-  const { trips } = useAppContext();
+  const { trips, user } = useAppContext();
+
+  const [recommendedTrips, setRecommendedTrips] = useState<TripType[] | null>(
+    []
+  );
+
+  const filterTrips = () => {
+    const filteredTrips = trips?.filter((trip) =>
+      user?.recentSearchedDestinations?.includes(
+        trip.country || trip.location.city
+      )
+    );
+    if (filteredTrips) {
+      setRecommendedTrips(filteredTrips);
+    } else {
+      setRecommendedTrips(trips);
+    }
+  };
+
+  useEffect(() => {
+    filterTrips();
+  }, [trips, user]);
 
   return (
-    <div className="px-4 md:px-16 lg:px-24 xl:px-32 py-10 md:py-20">
-      <Title
-        title="Handpicked Trips"
-        subtitle="Browse well planned trips designed for different travel styles and interests"
-      />
-      <div className="flex flex-wrap justify-center gap-10 mt-10">
-        {trips
+    <section className="flex flex-col items-center md:items-start gap-6 my-6 w-full">
+      <h2 className="text-xl md:text-2xl text-dark-400 font-semibold">
+        Recommended Trips
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7">
+        {recommendedTrips
           ?.slice(0, 4)
           ?.map(
             ({
@@ -38,7 +59,7 @@ const HandpickedTrips = () => {
             )
           )}
       </div>
-    </div>
+    </section>
   );
 };
 
