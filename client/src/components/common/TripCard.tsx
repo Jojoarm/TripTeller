@@ -13,7 +13,7 @@ type Props = {
   title: string;
   country: string;
   tags: string[];
-  price: string;
+  price: number;
 };
 
 const TripCard = ({
