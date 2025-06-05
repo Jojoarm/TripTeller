@@ -1,5 +1,6 @@
 import Loader from '@/components/common/Loader';
 import StarRating from '@/components/common/StarRating';
+import BookingCard from '@/components/user/BookingCard';
 import HandpickedTrips from '@/components/user/HandpickedTrips';
 import { useAppContext } from '@/context/AppContext';
 import type { DayPlan, TripType } from '@/types';
@@ -18,6 +19,8 @@ const TripDetails = () => {
   const { currency } = useAppContext();
   const [trip, setTrip] = useState<TripType | null>(null);
   const [mainImage, setMainImage] = useState<string>('');
+  const [showBookingCard, setShowBookingCard] = useState(false);
+  const [isBooked, setIsBooked] = useState(false);
 
   const getTrip = async () => {
     const response = await fetch(`${API_BASE_URL}/api/trips/trips/${id}`);
@@ -30,8 +33,25 @@ const TripDetails = () => {
     }
   };
 
+  //Check if trip is already booked by user
+  const checkBooking = async () => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/bookings/check-booking/${id}`,
+      {
+        credentials: 'include',
+      }
+    );
+    const responseBody = await response.json();
+    if (responseBody.success) {
+      setIsBooked(false);
+    } else {
+      setIsBooked(true);
+    }
+  };
+
   useEffect(() => {
     getTrip();
+    checkBooking();
   }, [id]);
 
   if (!trip) {
@@ -213,12 +233,20 @@ const TripDetails = () => {
       </div>
 
       <button
-        type="submit"
-        className="bg-primary hover:bg-primary-500 active:scale-95 transition-all text-white rounded-md max-md:w-full
+        onClick={() => setShowBookingCard(true)}
+        className="bg-primary-100 hover:bg-primary-500 active:scale-95 transition-all text-white rounded-md max-md:w-full
             max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer"
       >
-        Pay $ Join Trip
+        {isBooked ? 'View Booking' : 'Pay & Join Trip'}
       </button>
+
+      {showBookingCard && (
+        <BookingCard
+          setShowBookingCard={setShowBookingCard}
+          tripId={id}
+          tripImage={mainImage}
+        />
+      )}
 
       <HandpickedTrips />
     </div>

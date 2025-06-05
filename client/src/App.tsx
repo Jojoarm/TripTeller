@@ -10,6 +10,8 @@ import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import CreateTrip from './pages/admin/CreateTrip';
 import AllUsers from './pages/admin/AllUsers';
+import Bookings from './pages/user/Bookings';
+import PaymentSuccess from './components/user/PaymentSuccess';
 // import { registerLicense } from '@syncfusion/ej2-base';
 
 // registerLicense(import.meta.env.VITE_SYNCFUSION_LICENSE_KEY);
@@ -25,6 +27,8 @@ const App = () => {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/trips" element={<Trips />} />
+          <Route path="/my-bookings" element={<Bookings />} />
+          <Route path="/booking/success" element={<PaymentSuccess />} />
           <Route path="/trips/:id" element={<TripDetails />} />
         </Route>
 

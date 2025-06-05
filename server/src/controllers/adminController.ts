@@ -3,6 +3,7 @@ import UserModel from '../models/UserModel';
 import { GoogleGenAI } from '@google/genai';
 import { parseMarkdownToJson } from '../lib/utils';
 import TripModel, { TripDocument } from '../models/TripModel';
+import BookingModel from '../models/BookingModel';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 const unsplashApiKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -102,12 +103,10 @@ Respond with a **pure JSON** object matching the following format exactly. DO NO
     });
 
     if (!response) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: 'Failed to generate trip from gemini',
-        });
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate trip from gemini',
+      });
     }
 
     const tripResult = parseMarkdownToJson(response.text);
@@ -150,5 +149,92 @@ Respond with a **pure JSON** object matching the following format exactly. DO NO
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to generate trip' });
+  }
+};
+
+export const getTripBookings = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { tripId } = req.body;
+    const tripBookings = await BookingModel.find({ trip: tripId })
+      .populate('user')
+      .sort({ createdAt: -1 });
+    if (!tripBookings) {
+      return res.json({
+        success: false,
+        message: 'No booking for selected trip',
+      });
+    }
+    const totalBookings = tripBookings.length;
+    const totalRevenue = tripBookings.reduce(
+      (acc, booking) => acc + booking.totalPrice,
+      0
+    );
+    res.json({
+      success: true,
+      dashboardData: { totalBookings, totalRevenue, tripBookings },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch trip bookings' });
+  }
+};
+
+export const getUserBookings = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { userId } = req.body;
+    const userBookings = await BookingModel.find({ user: userId })
+      .populate('trip')
+      .sort({ createdAt: -1 });
+    if (!userBookings) {
+      return res.json({
+        success: false,
+        message: 'No booking for selected user',
+      });
+    }
+    const totalBookings = userBookings.length;
+    const totalRevenue = userBookings.reduce(
+      (acc, booking) => acc + booking.totalPrice,
+      0
+    );
+    res.json({
+      success: true,
+      dashboardData: { totalBookings, totalRevenue, userBookings },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch user bookings' });
+  }
+};
+
+export const getAllBookings = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const bookings = await BookingModel.find().sort({ createdAt: -1 });
+    if (!bookings) {
+      return res.json({
+        success: false,
+        message: 'No booking found',
+      });
+    }
+    const totalBookings = bookings.length;
+    const totalRevenue = bookings.reduce(
+      (acc, booking) => acc + booking.totalPrice,
+      0
+    );
+    res.json({
+      success: true,
+      dashboardData: { totalBookings, totalRevenue, bookings },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch bookings' });
   }
 };

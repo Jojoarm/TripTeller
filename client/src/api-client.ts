@@ -3,6 +3,7 @@ import type { RegisterFormData } from './components/common/SignUp';
 import type { SignInFormData } from './components/common/SignIn';
 import type { SearchFormData } from './components/user/SearchForm';
 import type { TripFormData } from './pages/admin/CreateTrip';
+import type { BookingFormData } from './components/user/BookingCard';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -121,14 +122,23 @@ export const fetchTrips = async (queryString?: string) => {
   }
 };
 
-//fetch trip
-// export const getTrip = async () => {
-//   const response = await fetch(`${API_BASE_URL}/api/trips/trips/:id`);
-//   const responseBody = await response.json();
-//   console.log(responseBody);
-//   if (responseBody.success) {
-//     return responseBody.tripData;
-//   } else {
-//     return null;
-//   }
-// };
+//create booking
+export const createBooking = async (formData: BookingFormData) => {
+  const response = await fetch(`${API_BASE_URL}/api/bookings/create-booking`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    window.location.href = responseBody.url;
+    toast.success(responseBody.message);
+  } else {
+    toast.error(responseBody.message);
+    throw new Error(responseBody.message);
+  }
+};

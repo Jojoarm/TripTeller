@@ -39,7 +39,7 @@ const CreateTrip = () => {
   const mutation = useMutation({
     mutationFn: apiClient.createTrip,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fetchTrips'] });
+      queryClient.invalidateQueries({ queryKey: ['defaultTrips'] });
       navigate('/admin/dashboard');
     },
     onError: (error: Error) => {
