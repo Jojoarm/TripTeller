@@ -95,8 +95,11 @@ const Trips = () => {
   }, [selectedFilters, selectedSort, currentPage]);
 
   const fetchTrips = async () => {
+    const params = new URLSearchParams(searchParams);
+    if (!params.get('limit')) return; // Don't fetch until limit is in URL
+
     const res = await fetch(
-      `${API_BASE_URL}/api/trips/trips?${searchParams.toString()}`
+      `${API_BASE_URL}/api/trips/trips?${params.toString()}`
     );
     const data = await res.json();
     if (data.success) {

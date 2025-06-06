@@ -50,22 +50,21 @@ export interface TripType {
   weatherInfo: string[];
   itinerary: DayPlan[];
   location: Location;
-  // location: {
-  //   city: string;
-  //   coordinates: [number, number];
-  //   openStreetMap: string;
-  // };
-  // itinerary: {
-  //   day: number;
-  //   location: string;
-  //   activities: {
-  //     time: string;
-  //     description: string;
-  //   }[];
-  // }[];
   imageUrls: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface BookingType {
+  _id: string;
+  user: string;
+  trip: TripType;
+  guests: number;
+  totalPrice: number;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  bookingDate: Date;
+  paymentMethod: string;
+  isPaid: boolean;
 }
 
 export type TestimonialType = {

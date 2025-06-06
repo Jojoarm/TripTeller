@@ -19,6 +19,7 @@ interface AppContextType {
   countries: Country[] | null;
   trips: TripType[] | null;
   currency: string;
+  API_BASE_URL: string;
   isAuthLoading: boolean;
 }
 
@@ -36,6 +37,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const trips = tripsResponse?.tripData ?? null;
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
   const currency = import.meta.env.VITE_CURRENCY || '$';
   const [countries, setCountries] = useState<Country[] | null>(null);
 
@@ -64,6 +66,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     countries,
     trips,
     isAuthLoading,
+    API_BASE_URL,
     // navigate,
     // location,
   };

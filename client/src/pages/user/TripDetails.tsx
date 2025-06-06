@@ -5,18 +5,16 @@ import HandpickedTrips from '@/components/user/HandpickedTrips';
 import { useAppContext } from '@/context/AppContext';
 import type { DayPlan, TripType } from '@/types';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export type Params = {
   id: string;
 };
 
 const TripDetails = () => {
-  // const trips = tripsDummyData;
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
   const { id } = useParams();
-  const { currency } = useAppContext();
+  const navigate = useNavigate();
+  const { currency, API_BASE_URL, user } = useAppContext();
   const [trip, setTrip] = useState<TripType | null>(null);
   const [mainImage, setMainImage] = useState<string>('');
   const [showBookingCard, setShowBookingCard] = useState(false);
@@ -35,24 +33,33 @@ const TripDetails = () => {
 
   //Check if trip is already booked by user
   const checkBooking = async () => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/bookings/check-booking/${id}`,
-      {
-        credentials: 'include',
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/bookings/check-booking/${id}`,
+        { credentials: 'include' }
+      );
+      if (!response.ok) throw new Error('Network error');
+      const data = await response.json();
+
+      if (
+        data.success === false &&
+        data.message === 'Trip already booked by user'
+      ) {
+        setIsBooked(true);
+      } else {
+        setIsBooked(false);
       }
-    );
-    const responseBody = await response.json();
-    if (responseBody.success) {
-      setIsBooked(false);
-    } else {
-      setIsBooked(true);
+    } catch (error) {
+      console.error('Check booking error:', error);
     }
   };
 
   useEffect(() => {
     getTrip();
-    checkBooking();
-  }, [id]);
+    if (user) {
+      checkBooking();
+    }
+  }, [id, user]);
 
   if (!trip) {
     return <Loader />;
@@ -82,6 +89,17 @@ const TripDetails = () => {
     { text: budget, bg: 'bg-success-50 text-success-700' },
     { text: interests, bg: 'bg-navy-50 text-navy-500' },
   ];
+
+  const handleSubmit = async () => {
+    if (!user) {
+      navigate('/sign-in');
+    } else if (isBooked) {
+      navigate('/my-bookings');
+      scrollTo(0, 0);
+    } else {
+      setShowBookingCard(true);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 items-start justify-between py-20 md:pt-35 px-4 md:px-16 lg:px-24 xl:px-32">
@@ -233,11 +251,11 @@ const TripDetails = () => {
       </div>
 
       <button
-        onClick={() => setShowBookingCard(true)}
+        onClick={handleSubmit}
         className="bg-primary-100 hover:bg-primary-500 active:scale-95 transition-all text-white rounded-md max-md:w-full
             max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer"
       >
-        {isBooked ? 'View Booking' : 'Pay & Join Trip'}
+        {isBooked && user ? 'View Booking' : 'Pay & Join Trip'}
       </button>
 
       {showBookingCard && (

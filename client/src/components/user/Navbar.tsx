@@ -164,7 +164,14 @@ const Navbar = () => {
                     <p className="font-normal">{user.email}</p>
                   </div>
                 </div>
-                <div className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer">
+                <div
+                  onClick={() => {
+                    navigate('/user/profile');
+                    scrollTo({ top: 0, behavior: 'smooth' });
+                    setIsUserOpen(!isUserOpen);
+                  }}
+                  className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer"
+                >
                   <div className="w-14">
                     <Settings className="size-5 text-gray-700 m-auto" />
                   </div>
@@ -175,6 +182,7 @@ const Navbar = () => {
                     onClick={() => {
                       navigate('/admin/dashboard');
                       scrollTo({ top: 0, behavior: 'smooth' });
+                      setIsUserOpen(!isUserOpen);
                     }}
                     className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer"
                   >
@@ -188,6 +196,7 @@ const Navbar = () => {
                     onClick={() => {
                       navigate('/my-bookings');
                       scrollTo({ top: 0, behavior: 'smooth' });
+                      setIsUserOpen(!isUserOpen);
                     }}
                     className="flex border-b border-gray-300 gap-6 py-3 px-5 hover:bg-slate-100 cursor-pointer"
                   >

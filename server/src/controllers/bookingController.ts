@@ -18,15 +18,42 @@ export const createBooking = async (
 
     const totalPrice = trip.estimatedPrice * guests;
 
-    const booking = await BookingModel.create({
+    let bookingId;
+    let booking;
+
+    const existingBooking = await BookingModel.findOne({
       user: userId,
       trip: tripId,
-      paymentMethod,
-      guests,
-      totalPrice,
     });
 
-    const bookingId = booking._id;
+    console.log(existingBooking);
+
+    if (existingBooking) {
+      if (existingBooking.isPaid) {
+        return res.status(400).json({
+          success: false,
+          message: 'You have already paid for this trip.',
+        });
+      }
+      console.log('You have a pending payment');
+
+      existingBooking.guests = guests;
+      existingBooking.paymentMethod = paymentMethod;
+      existingBooking.totalPrice = totalPrice;
+      await existingBooking.save();
+
+      booking = existingBooking;
+      bookingId = existingBooking._id;
+    } else {
+      booking = await BookingModel.create({
+        user: userId,
+        trip: tripId,
+        paymentMethod,
+        guests,
+        totalPrice,
+      });
+      bookingId = booking._id;
+    }
 
     //Stripe payment
     const origin = req.headers.origin || 'http://localhost:3000';
@@ -83,13 +110,29 @@ export const getUserBookings = async (
 ): Promise<any> => {
   try {
     const userId = req.userId;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const page = parseInt(req.query.page as string) || 1;
+
+    const total = await BookingModel.find({ user: userId }).countDocuments();
     const userBookings = await BookingModel.find({ user: userId })
       .populate('trip')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
     if (!userBookings) {
       return res.json({ success: false, message: 'No booking for user found' });
     }
-    res.json({ success: true, userBookings, message: 'User bookings fetched' });
+
+    res.json({
+      success: true,
+      userBookings,
+      pagination: {
+        totalItems: total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        pageSize: limit,
+      },
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to fetch user bookings' });
@@ -104,12 +147,16 @@ export const checkBooking = async (
   try {
     const userId = req.userId;
     const { tripId } = req.params;
-    const existingBooking = await BookingModel.find({
+    const existingBooking = await BookingModel.findOne({
       user: userId,
       trip: tripId,
     });
 
-    if (existingBooking.length > 0) {
+    if (
+      existingBooking &&
+      existingBooking.isPaid === true &&
+      existingBooking.status !== 'cancelled'
+    ) {
       return res.json({
         success: false,
         message: 'Trip already booked by user',
@@ -143,5 +190,33 @@ export const verifyBooking = async (
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to fetch user booking' });
+  }
+};
+
+// user cancel booking
+export const cancelUserBooking = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await BookingModel.findById(bookingId);
+
+    if (!booking)
+      return res
+        .status(404)
+        .json({ success: false, message: 'Booking not found' });
+
+    await BookingModel.findByIdAndUpdate(bookingId, {
+      status: 'cancelled',
+    });
+
+    res.json({
+      success: true,
+      message: 'Booking Cancelled!',
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to cancel booking' });
   }
 };

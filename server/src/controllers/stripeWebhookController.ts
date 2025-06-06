@@ -27,7 +27,6 @@ export const stripeWebhooks = async (
     return res.status(400).send(`Webhook Error: ${(error as Error).message}`);
   }
 
-  console.log(event);
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;

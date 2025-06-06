@@ -99,7 +99,7 @@ const BookingCard = ({ tripId, tripImage, setShowBookingCard }: Props) => {
                 {...register('paymentMethod', {
                   required: 'This field is required!',
                 })}
-                value="creditCard"
+                value="Credit Card"
               />
               <label htmlFor="creditCard">Credit Card</label>
             </div>
@@ -111,7 +111,7 @@ const BookingCard = ({ tripId, tripImage, setShowBookingCard }: Props) => {
                 {...register('paymentMethod', {
                   required: 'This field is required!',
                 })}
-                value="debitCard"
+                value="Debit Card"
               />
               <label htmlFor="debitCard">Debit Card</label>
             </div>

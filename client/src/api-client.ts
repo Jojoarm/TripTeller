@@ -142,3 +142,19 @@ export const createBooking = async (formData: BookingFormData) => {
     throw new Error(responseBody.message);
   }
 };
+
+//get user bookings
+export const getUserBookings = async (params: URLSearchParams) => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/bookings/user-bookings?${params}`,
+    {
+      credentials: 'include',
+    }
+  );
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    return responseBody;
+  } else {
+    return null;
+  }
+};

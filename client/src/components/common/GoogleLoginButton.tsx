@@ -2,11 +2,12 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 const GoogleLoginButton = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
   const handleCallbackResponse = async (
@@ -25,7 +26,7 @@ const GoogleLoginButton = () => {
 
       if (res.data.success) {
         queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
-        navigate('/');
+        navigate(location.state?.from?.pathname || '/');
       }
     } catch (err) {
       console.error('Google login failed', err);

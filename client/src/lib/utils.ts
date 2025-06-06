@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import dayjs from 'dayjs';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -39,4 +40,8 @@ export const formatKey = (key: keyof TripFormData) => {
   return key
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, (str) => str.toUpperCase());
+};
+
+export const formatDate = (date: string | Date): string => {
+  return dayjs(date).format('MMMM DD, YYYY');
 };

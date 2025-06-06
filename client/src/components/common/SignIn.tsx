@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Lock, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import * as apiClient from '../../api-client';
 import toast from 'react-hot-toast';
 import GoogleLoginButton from './GoogleLoginButton';
@@ -14,6 +14,7 @@ export type SignInFormData = {
 const SignIn = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     register,
     handleSubmit,
@@ -24,7 +25,7 @@ const SignIn = () => {
     mutationFn: apiClient.signInUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
-      navigate('/');
+      navigate(location.state?.from?.pathname || '/');
     },
     onError: (error: Error) => {
       toast.error((error as Error).message);
