@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
+import { UserType } from './UserModel';
+import { TripDocument } from './TripModel';
 
 export interface BookingType {
-  user: mongoose.Types.ObjectId;
-  trip: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId | UserType;
+  trip: mongoose.Types.ObjectId | TripDocument;
   guests: number;
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'cancelled';

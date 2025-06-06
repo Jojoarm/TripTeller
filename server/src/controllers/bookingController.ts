@@ -26,8 +26,6 @@ export const createBooking = async (
       trip: tripId,
     });
 
-    console.log(existingBooking);
-
     if (existingBooking) {
       if (existingBooking.isPaid) {
         return res.status(400).json({
@@ -35,7 +33,6 @@ export const createBooking = async (
           message: 'You have already paid for this trip.',
         });
       }
-      console.log('You have a pending payment');
 
       existingBooking.guests = guests;
       existingBooking.paymentMethod = paymentMethod;
