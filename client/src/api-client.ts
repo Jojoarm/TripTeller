@@ -4,6 +4,8 @@ import type { SignInFormData } from './components/common/SignIn';
 import type { SearchFormData } from './components/user/SearchForm';
 import type { TripFormData } from './pages/admin/CreateTrip';
 import type { BookingFormData } from './components/user/BookingCard';
+import type { ForgotPasswordData } from './components/common/ForgotPassword';
+import type { ResetPasswordData } from './components/common/ResetPassword';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -66,8 +68,23 @@ export const fetchUser = async () => {
   if (responseBody.success) {
     return responseBody.userData;
   } else {
-    console.log('User not found in vercel');
+    // console.log('User not found in vercel');
     return null;
+  }
+};
+
+//fetchUser
+export const verifyEmail = async (code: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/users/verify-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  });
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    return responseBody.userData;
+  } else {
+    throw new Error('Verification failed');
   }
 };
 
@@ -156,5 +173,50 @@ export const getUserBookings = async (params: URLSearchParams) => {
     return responseBody;
   } else {
     return null;
+  }
+};
+
+//send otp
+export const sendOtp = async (formData: ForgotPasswordData) => {
+  const response = await fetch(`${API_BASE_URL}/api/users/send-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    toast.success(responseBody.message);
+  } else {
+    throw new Error('Failed to send Otp');
+  }
+};
+
+//verify otp
+export const verifyOtp = async (code: string, email: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/users/verify-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, email }),
+  });
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    toast.success(responseBody.message);
+  } else {
+    throw new Error('Failed to verify Otp');
+  }
+};
+
+//reset password
+export const resetPassword = async (formData: ResetPasswordData) => {
+  const response = await fetch(`${API_BASE_URL}/api/users/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    toast.success(responseBody.message);
+  } else {
+    throw new Error('Failed to reset password');
   }
 };

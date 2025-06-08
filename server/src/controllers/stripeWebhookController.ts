@@ -4,20 +4,8 @@ import BookingModel, { BookingType } from '../models/BookingModel';
 import transporter from '../config/nodemailer';
 import { UserType } from '../models/UserModel';
 import { TripDocument } from '../models/TripModel';
-
-interface PopulatedBookingType extends Omit<BookingType, 'user' | 'trip'> {
-  user: {
-    email: string;
-    username: string;
-  };
-  trip: {
-    title: string;
-    country: string;
-    location: {
-      city: string;
-    };
-  };
-}
+import { sendSuccessfulBookingEmail } from '../middlewares/email';
+import mongoose from 'mongoose';
 
 //Api to handle stripe webhooks
 export const stripeWebhooks = async (
@@ -65,34 +53,7 @@ export const stripeWebhooks = async (
       return res.status(400).send('Booking not found');
     }
 
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: booking.user.email,
-      subject: 'Trip Booking Details',
-      html: `
-            <h2>Your Booking Details</h2>
-            <p>Dear ${booking.user.username},</p>
-            <p>Thank you for your booking! Here are your booking details:</p>
-            <ul>
-                <li><strong>Booking ID:</strong> ${booking._id}</li>
-                <li><strong>Trip Title:</strong> ${booking.trip.title}</li>
-                <li><strong>Location:</strong> ${booking.trip.country}, ${
-        booking.trip.location.city
-      }</li>
-                <li><strong>Date: </strong> ${booking.bookingDate.toString()}</li>
-                <li><strong>Persons: </strong> ${booking.guests}</li>
-                <li><strong>Total Amount:</strong> ${
-                  process.env.CURRENCY || '$'
-                } ${booking.totalPrice} /trip</li>
-            </ul>
-            <p>We look forward to welcoming you!</p>
-            <p>If you need to make any changes, feel free to contact us.</p>
-        `,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log('Message sent:', info);
+    await sendSuccessfulBookingEmail(booking);
   } else {
     console.log('Unhandled event type', event.type);
   }

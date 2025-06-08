@@ -3,6 +3,17 @@ import UserModel from '../models/UserModel';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+import {
+  sendOtpEmail,
+  sendPasswordResetSuccessful,
+  sendWelcomeEmail,
+} from '../middlewares/email';
+import {
+  deleteOtp,
+  generateOtp,
+  saveOtp,
+  validateOtp,
+} from '../middlewares/otp';
 
 interface GooglePayload {
   email: string;
@@ -28,6 +39,8 @@ export const signUp = async (req: Request, res: Response): Promise<any> => {
       username,
     });
     await newUser.save();
+
+    await sendWelcomeEmail(newUser);
 
     const token = jwt.sign(
       { userId: newUser._id, role: newUser.status },
@@ -89,10 +102,9 @@ export const signIn = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 // SignIn/SignUp using google
 export const googleAuth = async (req: Request, res: Response): Promise<any> => {
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   const { tokenId } = req.body;
   try {
     const ticket = await client.verifyIdToken({
@@ -117,6 +129,8 @@ export const googleAuth = async (req: Request, res: Response): Promise<any> => {
         googleId: sub,
         image: picture,
       });
+
+      await sendWelcomeEmail(user);
     }
 
     const token = jwt.sign(
@@ -200,5 +214,76 @@ export const storeRecentSearchedDestinations = async (
     res.json({ success: true, message: 'City added' });
   } catch (error) {
     res.json({ success: false, message: (error as Error).message });
+  }
+};
+
+export const sendOtp = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email });
+    if (!user)
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email not registered' });
+
+    const otp = generateOtp();
+    await saveOtp(email, otp);
+    await sendOtpEmail(user, otp);
+
+    res.json({ success: true, message: 'OTP sent to email' });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ success: false, message: 'Error with password reset!' });
+  }
+};
+
+export const verifyOtp = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { email, code } = req.body;
+    const isValid = await validateOtp(email, code);
+
+    if (!isValid) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    await deleteOtp(email); // Cleanup after verification
+
+    res.json({ success: true, message: 'OTP verified successfully' });
+  } catch (error) {
+    res.status(500).send({ success: false, message: 'Error verifying otp!' });
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { email, password } = req.body;
+    console.log(req.body);
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
+
+    await user.save();
+
+    await sendPasswordResetSuccessful(user);
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ success: false, message: 'Error resetting password!' });
   }
 };

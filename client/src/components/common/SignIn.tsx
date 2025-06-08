@@ -15,6 +15,7 @@ const SignIn = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
+
   const {
     register,
     handleSubmit,
@@ -37,12 +38,12 @@ const SignIn = () => {
   });
 
   return (
-    <div className="w-full h-full py-28 flex flex-col items-center justify-center">
+    <div className="relative z-10 py-10 flex flex-col items-center justify-center h-full">
       <form
         onSubmit={onSubmit}
-        className="w-80 md:w-96 flex flex-col items-center justify-center bg-white border border-gray-200 rounded-2xl shadow-xl px-6 py-8 transition transform hover:scale-[1.02] hover:shadow-2xl"
+        className="w-80 md:w-96 flex flex-col items-center justify-center bg-white border border-gray-200 rounded-2xl shadow-xl px-6 py-8 "
       >
-        <h2 className="text-4xl text-gray-900 font-medium">Sign in</h2>
+        <img src="/assets/icons/Logo.png" alt="logo" className="h-10" />
         <p className="text-sm text-gray-500/90 mt-3">
           Welcome back! Please sign in to continue
         </p>
@@ -52,7 +53,7 @@ const SignIn = () => {
 
         <div className="flex items-center gap-4 w-full my-5">
           <div className="w-full h-px bg-gray-300/90"></div>
-          <p className="w-full text-nowrap text-sm text-gray-500/90">
+          <p className="w-full text-nowrap text-sm font-semibold text-gray-500/90">
             or sign in with email and password
           </p>
           <div className="w-full h-px bg-gray-300/90"></div>
@@ -105,7 +106,7 @@ const SignIn = () => {
               Remember me
             </label>
           </div>
-          <Link className="text-sm underline" to="#">
+          <Link className="text-sm underline" to="/forgot-password">
             Forgot password?
           </Link>
         </div>

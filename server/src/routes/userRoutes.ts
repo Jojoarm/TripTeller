@@ -2,10 +2,13 @@ import express from 'express';
 import {
   fetchUser,
   googleAuth,
+  resetPassword,
+  sendOtp,
   signIn,
   signUp,
   storeRecentSearchedDestinations,
   userLogout,
+  verifyOtp,
 } from '../controllers/userController';
 import {
   validateUserLoginRequest,
@@ -21,5 +24,8 @@ userRouter.post('/google-auth', googleAuth);
 userRouter.get('/fetch-user', verifyToken, fetchUser);
 userRouter.post('/recent-search', verifyToken, storeRecentSearchedDestinations);
 userRouter.post('/logout', userLogout);
+userRouter.post('/send-otp', sendOtp);
+userRouter.post('/verify-otp', verifyOtp);
+userRouter.post('/reset-password', resetPassword);
 
 export default userRouter;

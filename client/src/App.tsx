@@ -12,20 +12,28 @@ import CreateTrip from './pages/admin/CreateTrip';
 import AllUsers from './pages/admin/AllUsers';
 import Bookings from './pages/user/Bookings';
 import PaymentSuccess from './components/user/PaymentSuccess';
-// import { registerLicense } from '@syncfusion/ej2-base';
-
-// registerLicense(import.meta.env.VITE_SYNCFUSION_LICENSE_KEY);
+import ForgotPassword from './components/common/ForgotPassword';
+import ResetPassword from './components/common/ResetPassword';
+import TokenVerification from './components/common/TokenVerification';
+import AuthLayout from './layouts/AuthLayout';
 
 const App = () => {
   return (
     <div>
       <Toaster />
       <Routes>
+        {/* Auth Routes */}
+        <Route element={<AuthLayout />}>
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-token" element={<TokenVerification />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
+
         {/* User Routes */}
         <Route element={<UserLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/my-bookings" element={<Bookings />} />
           <Route path="/booking/success" element={<PaymentSuccess />} />
