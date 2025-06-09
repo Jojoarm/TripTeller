@@ -9,6 +9,8 @@ import type { ResetPasswordData } from './components/common/ResetPassword';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+// USERS
+
 //create user
 export const createUser = async (formData: RegisterFormData) => {
   const response = await fetch(`${API_BASE_URL}/api/users/sign-up`, {
@@ -73,7 +75,7 @@ export const fetchUser = async () => {
   }
 };
 
-//fetchUser
+//verify email
 export const verifyEmail = async (code: string) => {
   const response = await fetch(`${API_BASE_URL}/api/users/verify-email`, {
     method: 'POST',
@@ -100,26 +102,6 @@ export const saveSearchedDestination = async (formData: SearchFormData) => {
   });
   if (!response.ok) {
     return null;
-  }
-};
-
-//create trip by admin
-export const createTrip = async (formData: TripFormData) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/create-trip`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
-
-  const responseBody = await response.json();
-  if (responseBody.success) {
-    toast.success(responseBody.message);
-  } else {
-    toast.error(responseBody.message);
-    throw new Error(responseBody.message);
   }
 };
 
@@ -184,10 +166,10 @@ export const sendOtp = async (formData: ForgotPasswordData) => {
     body: JSON.stringify(formData),
   });
   const responseBody = await response.json();
-  if (responseBody.success) {
+  if (response.ok && responseBody.success) {
     toast.success(responseBody.message);
   } else {
-    throw new Error('Failed to send Otp');
+    throw new Error(responseBody.message || 'Something went wrong');
   }
 };
 
@@ -218,5 +200,40 @@ export const resetPassword = async (formData: ResetPasswordData) => {
     toast.success(responseBody.message);
   } else {
     throw new Error('Failed to reset password');
+  }
+};
+
+// ADMIN
+
+//create trip by admin
+export const createTrip = async (formData: TripFormData) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/create-trip`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    toast.success(responseBody.message);
+  } else {
+    toast.error(responseBody.message);
+    throw new Error(responseBody.message);
+  }
+};
+
+//fetch all users
+export const adminFetchUsers = async (params: URLSearchParams) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users?${params}`, {
+    credentials: 'include',
+  });
+  const responseBody = await response.json();
+  if (responseBody.success) {
+    return responseBody;
+  } else {
+    return null;
   }
 };

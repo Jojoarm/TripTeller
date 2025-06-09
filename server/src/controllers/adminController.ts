@@ -225,10 +225,9 @@ export const getAllBookings = async (
       });
     }
     const totalBookings = bookings.length;
-    const totalRevenue = bookings.reduce(
-      (acc, booking) => acc + booking.totalPrice,
-      0
-    );
+    const totalRevenue = bookings
+      .filter((booking) => booking.isPaid)
+      .reduce((acc, booking) => acc + booking.totalPrice, 0);
     res.json({
       success: true,
       dashboardData: { totalBookings, totalRevenue, bookings },
@@ -236,5 +235,112 @@ export const getAllBookings = async (
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to fetch bookings' });
+  }
+};
+
+export const getAllUsers = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const page = parseInt(req.query.page as string) || 1;
+    const username = (req.query.username as string) || '';
+    const sort = (req.query.sort as string) || '';
+
+    //filters
+
+    const filter: any = {};
+    if (username) {
+      filter.username = { $regex: req.query.username, $options: 'i' };
+    }
+
+    //sorting
+    // let sortOption: any = {};
+    // if (sort === 'Asc') {
+    //   sortOption.username = 1;
+    // } else if (sort === 'Dsc') {
+    //   sortOption.username = -1;
+    // } else if (sort === 'Latest') {
+    //   sortOption.createdAt = -1;
+    // } else if (sort === 'Most revenue') {
+    //   sortOption.totalRevenue = 1;
+    // }
+
+    const users = await UserModel.find(filter).lean();
+
+    if (!users) {
+      return res.json({
+        success: false,
+        message: 'No user found',
+      });
+    }
+
+    // const totalUsers = await UserModel.find().countDocuments();
+
+    const usersWithBookings = await Promise.all(
+      users.map(async (user) => {
+        const bookings = await BookingModel.find({ user: user._id })
+          .populate('trip')
+          .lean();
+        const totalBookings = bookings.length;
+        const totalRevenue = bookings
+          .filter((booking) => booking.isPaid)
+          .reduce((acc, booking) => acc + booking.totalPrice, 0);
+        const cancelledBookings = bookings.filter(
+          (booking) => booking.status === 'cancelled'
+        ).length;
+        const completedBookings = bookings.filter(
+          (booking) => booking.status === 'confirmed'
+        ).length;
+        return {
+          user: user,
+          totalBookings,
+          totalRevenue,
+          cancelledBookings,
+          completedBookings,
+          bookings,
+        };
+      })
+    );
+
+    // Sorting logic
+    let sortedUsers = [...usersWithBookings];
+
+    if (sort === 'Most revenue') {
+      sortedUsers.sort((a, b) => b.totalRevenue - a.totalRevenue);
+    } else if (sort === 'Asc') {
+      sortedUsers.sort((a, b) =>
+        a.user.username.localeCompare(b.user.username)
+      );
+    } else if (sort === 'Dsc') {
+      sortedUsers.sort((a, b) =>
+        b.user.username.localeCompare(a.user.username)
+      );
+    } else if (sort === 'Latest') {
+      sortedUsers.sort(
+        (a, b) =>
+          new Date(b.user.createdAt).getTime() -
+          new Date(a.user.createdAt).getTime()
+      );
+    }
+
+    const totalUsers = sortedUsers.length;
+
+    const paginatedUsers = sortedUsers.slice((page - 1) * limit, page * limit);
+
+    res.status(200).json({
+      success: true,
+      data: paginatedUsers,
+      pagination: {
+        totalItems: totalUsers,
+        currentPage: page,
+        totalPages: Math.ceil(totalUsers / limit),
+        pageSize: limit,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch users' });
   }
 };

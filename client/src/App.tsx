@@ -16,6 +16,7 @@ import ForgotPassword from './components/common/ForgotPassword';
 import ResetPassword from './components/common/ResetPassword';
 import TokenVerification from './components/common/TokenVerification';
 import AuthLayout from './layouts/AuthLayout';
+import AllTrips from './pages/admin/AllTrips';
 
 const App = () => {
   return (
@@ -46,6 +47,7 @@ const App = () => {
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/create-trip" element={<CreateTrip />} />
           <Route path="/admin/all-users" element={<AllUsers />} />
+          <Route path="/admin/all-trips" element={<AllTrips />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" />} />

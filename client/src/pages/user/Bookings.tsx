@@ -74,7 +74,7 @@ const Bookings = () => {
         subtitle="Easily manage your past, current and upcoming trips reservations in one place. Plan your trips seamlessly with just a few clicks"
       />
       <div className="flex flex-col gap-7 w-full mt-5 bg-white border p-6 md:p-10 rounded-2xl">
-        <div className="hidden md:grid md:grid-cols-[2fr_1fr_0.5fr_1fr_0.5fr] font-semibold text-gray-600 text-lg font-playfiar border-b-2 border-gray-200">
+        <div className="hidden lg:grid lg:grid-cols-[2fr_1fr_0.5fr_1fr_0.5fr] font-semibold text-gray-600 text-lg font-playfiar border-b-2 border-gray-200">
           <p>Trip Detail</p>
           <p>Location</p>
           <p>Trip Cost</p>
@@ -84,7 +84,7 @@ const Bookings = () => {
         {bookings.map((booking: BookingType) => (
           <div
             key={booking._id}
-            className="flex flex-col md:grid md:grid-cols-[2fr_1fr_0.5fr_1fr_0.5fr] gap-2 border rounded-2xl p-4 bg-white shadow"
+            className="flex flex-col lg:grid lg:grid-cols-[2fr_1fr_0.5fr_1fr_0.5fr] gap-2 border rounded-2xl p-4 bg-white shadow"
           >
             {/* Details */}
             <div className="flex gap-4">
@@ -119,7 +119,7 @@ const Bookings = () => {
             </div>
 
             {/* location */}
-            <div className="flex md:flex-col gap-3 md:gap-2">
+            <div className="flex lg:flex-col gap-3 lg:gap-2">
               <p className="text-sm text-gray-500">
                 <span className="font-normal text-gray-600 text-base">
                   Country:
@@ -136,7 +136,7 @@ const Bookings = () => {
 
             {/* price */}
             <p className="font-normal text-gray-600 text-base">
-              <span className="md:hidden text-gray-700">Total Price: </span>
+              <span className="lg:hidden text-gray-700">Total Price: </span>
               {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
@@ -144,7 +144,7 @@ const Bookings = () => {
             </p>
 
             {/* status */}
-            <div className="flex md:flex-col gap-3 md:gap-2">
+            <div className="flex items-start lg:flex-col gap-3 lg:gap-2">
               <p className="text-sm text-gray-500">
                 <span className="font-normal text-gray-600 text-base">
                   Method:
@@ -157,7 +157,7 @@ const Bookings = () => {
                 </span>{' '}
                 {formatDate(booking.bookingDate)}
               </p>
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 lg:items-center">
                 <span className="font-normal text-gray-600 text-base">
                   Payment:
                 </span>
@@ -168,7 +168,7 @@ const Bookings = () => {
                   if (status) {
                     return (
                       <span
-                        className={`text-sm px-2 py-1 shadow rounded-3xl ${status.bg}`}
+                        className={`text-xs lg:text-sm px-2 py-1 shadow rounded-3xl ${status.bg}`}
                       >
                         {status.text.charAt(0).toUpperCase() +
                           status.text.slice(1)}
@@ -181,14 +181,14 @@ const Bookings = () => {
             </div>
 
             {/* actions */}
-            <div className="flex md:flex-col gap-3 md:gap-2">
+            <div className="flex lg:flex-col gap-3 lg:gap-2">
               {!booking.isPaid && (
                 <button
                   onClick={() => {
                     navigate(`/trips/${booking.trip._id}`);
                     scrollTo(0, 0);
                   }}
-                  className="px-4 py-1.5 mt-4 text-xs border border-gray-400 rounded-full bg-white text-green-400 hover:bg-green-400 hover:text-white hover:border-white transition-all cursor-pointer"
+                  className="px-2 py-1.5 w-[80px] lg:w-[100px] mt-4 text-xs border border-gray-400 rounded-full bg-white text-green-400 hover:bg-green-400 hover:text-white hover:border-white transition-all cursor-pointer"
                 >
                   Pay Now
                 </button>
@@ -200,7 +200,7 @@ const Bookings = () => {
               ) : (
                 <button
                   onClick={() => handleCancelBooking(booking._id)}
-                  className="px-4 py-1.5 mt-4 text-xs border border-red-400 rounded-full bg-white text-red-400 hover:bg-red-400 hover:text-white hover:border-white  transition-all cursor-pointer"
+                  className="px-2 w-[80px] lg:w-[100px] py-1.5 mt-4 text-xs border border-red-400 rounded-full bg-white text-red-400 hover:bg-red-400 hover:text-white hover:border-white  transition-all cursor-pointer"
                 >
                   Cancel Trip
                 </button>

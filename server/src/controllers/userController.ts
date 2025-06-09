@@ -220,11 +220,23 @@ export const storeRecentSearchedDestinations = async (
 export const sendOtp = async (req: Request, res: Response): Promise<any> => {
   try {
     const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Valid email is required' });
+    }
     const user = await UserModel.findOne({ email });
     if (!user)
       return res
         .status(400)
         .json({ success: false, message: 'Email not registered' });
+
+    if (user.googleId) {
+      return res.status(400).json({
+        success: false,
+        message: "Users registered through google don't require password",
+      });
+    }
 
     const otp = generateOtp();
     await saveOtp(email, otp);
@@ -263,7 +275,6 @@ export const resetPassword = async (
 ): Promise<any> => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
     const user = await UserModel.findOne({ email });
     if (!user) {
       return res

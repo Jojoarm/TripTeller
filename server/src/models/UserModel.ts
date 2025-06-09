@@ -21,6 +21,12 @@ const userSchema = new mongoose.Schema(
     password: { type: String },
     image: { type: String, required: false },
     status: { type: String, enum: ['admin', 'user'], default: 'user' },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+      required: true,
+    },
     recentSearchedDestinations: { type: [String], default: [] },
     trips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TripModel' }],
   },

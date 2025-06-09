@@ -100,10 +100,16 @@ export const sidebarItems = [
     href: '/admin/dashboard',
   },
   {
-    id: 3,
+    id: 2,
     icon: '/assets/icons/users.svg',
     label: 'All Users',
     href: '/admin/all-users',
+  },
+  {
+    id: 3,
+    icon: '/assets/icons/trip.svg',
+    label: 'All Trips',
+    href: '/admin/all-trips',
   },
   {
     id: 4,
