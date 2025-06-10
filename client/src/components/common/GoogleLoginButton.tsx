@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
 
 const GoogleLoginButton = () => {
   const queryClient = useQueryClient();
@@ -27,6 +28,8 @@ const GoogleLoginButton = () => {
       if (res.data.success) {
         queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
         navigate(location.state?.from?.pathname || '/');
+      } else {
+        toast.error(res.data.message);
       }
     } catch (err) {
       console.error('Google login failed', err);

@@ -73,6 +73,13 @@ export const signIn = async (req: Request, res: Response): Promise<any> => {
         .status(400)
         .json({ success: false, message: 'User not found' });
 
+    if (user.isDeleted) {
+      return res.status(400).json({
+        success: false,
+        message: 'Not authorized as User has been deleted',
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res
@@ -131,6 +138,13 @@ export const googleAuth = async (req: Request, res: Response): Promise<any> => {
       });
 
       await sendWelcomeEmail(user);
+    }
+
+    if (user.isDeleted) {
+      return res.status(400).json({
+        success: false,
+        message: 'Not authorized as User has been deleted',
+      });
     }
 
     const token = jwt.sign(

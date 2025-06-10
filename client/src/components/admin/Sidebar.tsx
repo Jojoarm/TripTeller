@@ -1,11 +1,31 @@
 import { sidebarItems } from '@/assets/assets';
 import { useAppContext } from '@/context/AppContext';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
-import { Link, NavLink } from 'react-router';
+import toast from 'react-hot-toast';
+import { Link, NavLink, useNavigate } from 'react-router';
+import * as apiClient from '../../api-client';
 
 const Sidebar = () => {
   const { user } = useAppContext();
-  const handleLogout = () => {};
+  const navigate = useNavigate();
+  //user logout
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: apiClient.logOut,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
+      toast.success('Logged Out!');
+      navigate('/');
+      scrollTo(0, 0);
+    },
+    onError: (error: Error) => {
+      toast.error((error as Error).message);
+    },
+  });
+  const handleLogout = () => {
+    mutation.mutate();
+  };
   return (
     <section className="flex flex-col h-full  pt-12 lg:pt-10">
       {/* Logo */}

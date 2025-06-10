@@ -1,7 +1,6 @@
-import { useAppContext } from '@/context/AppContext';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import * as apiClient from '../../api-client';
 import Loader from '@/components/common/Loader';
 import Pagination from '@/components/common/Pagination';
@@ -19,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import toast from 'react-hot-toast';
 
 type UserDataType = {
   user: UserType;
@@ -29,19 +29,59 @@ type UserDataType = {
   totalRevenue: number;
 };
 
+export type Role = 'user' | 'admin';
+
 const AllUsers = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { API_BASE_URL, user } = useAppContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchUser, setSearchUser] = useState('');
   const [usernameQuery, setUsernameQuery] = useState('');
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState('');
+  const [userRoleEditOpenId, setUserRoleEditOpenId] = useState<string | null>(
+    null
+  );
+  const [deletedUserId, setDeletedUserId] = useState<string | null>(null);
 
   const limit = 6;
 
+  // change user role
+  const updateMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      apiClient.adminChangeUserRole(id, status),
+    onSuccess: async () => {
+      setUserRoleEditOpenId(null);
+      await queryClient.invalidateQueries({ queryKey: ['adminFetchUsers'] });
+    },
+    onError: (error: Error) => {
+      toast.error((error as Error).message);
+    },
+  });
+
+  const handleUserRoleChange = async (id: string, status: Role) => {
+    updateMutation.mutate({ id, status });
+  };
+
+  // deletUser
+  const deleteMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => apiClient.adminDeleteUser(id),
+    onSuccess: async () => {
+      setDeletedUserId(null);
+      await queryClient.invalidateQueries({ queryKey: ['adminFetchUsers'] });
+    },
+    onError: (error: Error) => {
+      toast.error((error as Error).message);
+    },
+  });
+
+  const handleDeleteUser = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      deleteMutation.mutate({ id });
+    }
+  };
+
+  //Filtering
   // Hydrate initial state from URL
   useEffect(() => {
     const userNameParam = searchParams.get('username');
@@ -105,13 +145,13 @@ const AllUsers = () => {
       />
 
       <div className="relative mt-5 mb-10  bg-white border rounded-2xl">
+        {/* filters */}
         <p
           className="absolute right-0 top-0 text-gray-400 underline py-2 px-4 text-sm cursor-pointer"
           onClick={clearFilters}
         >
           Clear Filters
         </p>
-        {/* filters */}
         <div className="flex justify-between w-full pt-7">
           <div className="flex items-center text-sm bg-white h-12 border m-2 pl-2 rounded-2xl border-gray-500/30 w-full max-w-sm overflow-hidden">
             <input
@@ -166,6 +206,7 @@ const AllUsers = () => {
             )}
           </div>
         </div>
+
         <Table className=" w-full [&_th]:p-4 [&_td]:p-4">
           <TableCaption className="pb-4">
             <Pagination
@@ -260,17 +301,62 @@ const AllUsers = () => {
                   </p>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-4">
+                  <div className="relative flex items-center gap-4">
                     <p className="font-normal text-gray-600 text-base">
                       {data.user.status.charAt(0).toUpperCase() +
                         data.user.status.slice(1)}
                     </p>
-                    <Pencil className="size-4 text-navy-500 cursor-pointer" />
+                    {updateMutation.isPending &&
+                    userRoleEditOpenId === data.user._id ? (
+                      <div className="animate-spin rounded-full size-5 m-auto border-2 border-white border-t-[#2563eb] "></div>
+                    ) : (
+                      <Pencil
+                        className=" size-4 text-navy-500 cursor-pointer"
+                        onClick={() =>
+                          setUserRoleEditOpenId((prev) =>
+                            prev === data.user._id ? null : data.user._id
+                          )
+                        }
+                      />
+                    )}
+                    {userRoleEditOpenId === data.user._id && (
+                      <ul className="absolute z-10 w-full top-full bg-white border border-gray-300 rounded shadow-md mt-1 py-2">
+                        <li
+                          className="px-4 py-2 hover:bg-indigo-500 hover:text-white cursor-pointer"
+                          onClick={() => {
+                            handleUserRoleChange(data.user._id, 'admin');
+                          }}
+                        >
+                          admin
+                        </li>
+                        <li
+                          className="px-4 py-2 hover:bg-indigo-500 hover:text-white cursor-pointer"
+                          onClick={() => {
+                            handleUserRoleChange(data.user._id, 'user');
+                          }}
+                        >
+                          user
+                        </li>
+                      </ul>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="">
                   <div className="px-4 mx-auto">
-                    <Trash2 className="size-5 text-red-400 hover:text-red-500 cursor-pointer" />
+                    {deletedUserId === data.user._id &&
+                    deleteMutation.isPending ? (
+                      <div className="animate-spin rounded-full size-5 m-auto border-2 border-white border-t-[#2563eb] "></div>
+                    ) : (
+                      <Trash2
+                        className="size-5 text-red-400 hover:text-red-500 cursor-pointer"
+                        onClick={() => {
+                          {
+                            setDeletedUserId(data.user._id);
+                            handleDeleteUser(data.user._id);
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

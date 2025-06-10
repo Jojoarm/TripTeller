@@ -10,7 +10,6 @@ import type { ResetPasswordData } from './components/common/ResetPassword';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // USERS
-
 //create user
 export const createUser = async (formData: RegisterFormData) => {
   const response = await fetch(`${API_BASE_URL}/api/users/sign-up`, {
@@ -236,4 +235,47 @@ export const adminFetchUsers = async (params: URLSearchParams) => {
   } else {
     return null;
   }
+};
+
+//fetch all trips
+export const adminFetchTrips = async (params: URLSearchParams) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/trips?${params}`, {
+    credentials: 'include',
+  });
+  const responseBody = await response.json();
+
+  if (!response.ok || !responseBody.success) {
+    throw new Error(responseBody.message || 'Failed to get trips');
+  }
+
+  return responseBody;
+};
+
+//change user role
+export const adminChangeUserRole = async (id: string, status: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/edit-role`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ id, status }),
+  });
+  const responseBody = await response.json();
+  if (!response.ok || !responseBody.success) {
+    throw new Error(responseBody.message || 'Failed to update user role');
+  }
+
+  toast.success(responseBody.message);
+};
+
+//delete user
+export const adminDeleteUser = async (id: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  const responseBody = await response.json();
+  if (!response.ok || !responseBody.success) {
+    throw new Error(responseBody.message || 'Failed to delete user');
+  }
+  toast.success(responseBody.message);
 };

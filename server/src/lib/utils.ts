@@ -28,3 +28,26 @@ export function extractJson(raw: string) {
     throw new Error('Gemini response was not valid JSON');
   }
 }
+
+// const runMigration = async () => {
+//   try {
+//     await mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string);
+//     console.log('Connected to MongoDB');
+
+//     const result = await UserModel.updateMany(
+//       { isDeleted: { $exists: false } },
+//       { $set: { isDeleted: false } }
+//     );
+
+//     console.log(
+//       `✅ Migration complete: ${result.modifiedCount} user(s) updated.`
+//     );
+//   } catch (error) {
+//     console.error('❌ Migration failed:', error);
+//   } finally {
+//     await mongoose.disconnect();
+//     console.log('Disconnected from MongoDB');
+//   }
+// };
+
+// runMigration();

@@ -4,6 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 import { parseMarkdownToJson } from '../lib/utils';
 import TripModel, { TripDocument } from '../models/TripModel';
 import BookingModel from '../models/BookingModel';
+import mongoose from 'mongoose';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 const unsplashApiKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -14,20 +15,21 @@ export const changeUserRole = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { status } = req.body;
-    const { id } = req.params;
+    const { status, id } = req.body;
 
     if (!['admin', 'user'].includes(status)) {
       return res.status(400).json({ message: 'Invalid role' });
     }
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const updatedUser = await UserModel.findByIdAndUpdate(id, { status });
+
+    if (!updatedUser || updatedUser.isDeleted) {
+      return res
+        .status(500)
+        .json({ success: false, message: 'User not found' });
+    }
     res
       .status(200)
-      .json({ success: true, updatedUser, message: 'Logged out successfully' });
+      .json({ success: true, updatedUser, message: 'User Role Updated' });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to update role' });
@@ -267,7 +269,7 @@ export const getAllUsers = async (
     //   sortOption.totalRevenue = 1;
     // }
 
-    const users = await UserModel.find(filter).lean();
+    const users = await UserModel.find({ ...filter, isDeleted: false }).lean();
 
     if (!users) {
       return res.json({
@@ -342,5 +344,131 @@ export const getAllUsers = async (
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to fetch users' });
+  }
+};
+
+export const getAllTrips = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const page = parseInt(req.query.page as string) || 1;
+    const searchString = (req.query.searchString as string) || '';
+    const sort = (req.query.sort as string) || '';
+
+    //filters
+
+    const filter: any = {};
+    if (searchString) {
+      filter.$or = [
+        { country: { $regex: searchString, $options: 'i' } },
+        { 'location.city': { $regex: searchString, $options: 'i' } },
+        { title: { $regex: searchString, $options: 'i' } },
+        { interests: { $regex: searchString, $options: 'i' } },
+      ];
+    }
+
+    const trips = await TripModel.find(filter).lean();
+
+    if (!trips) {
+      return res.json({
+        success: false,
+        message: 'No trip found',
+      });
+    }
+
+    const tripsWithBookings = await Promise.all(
+      trips.map(async (trip) => {
+        const bookings = await BookingModel.find({ trip: trip._id })
+          .populate('user')
+          .lean();
+        const totalBookings = bookings.length;
+        const totalRevenue = bookings
+          .filter((booking) => booking.isPaid)
+          .reduce((acc, booking) => acc + booking.totalPrice, 0);
+        const cancelledBookings = bookings.filter(
+          (booking) => booking.status === 'cancelled'
+        ).length;
+        const completedBookings = bookings.filter(
+          (booking) => booking.status === 'confirmed'
+        ).length;
+        return {
+          trip: trip,
+          totalBookings,
+          totalRevenue,
+          cancelledBookings,
+          completedBookings,
+          bookings,
+        };
+      })
+    );
+
+    // Sorting logic
+    let sortedTrips = [...tripsWithBookings];
+
+    if (sort === 'Most revenue') {
+      sortedTrips.sort((a, b) => b.totalRevenue - a.totalRevenue);
+    } else if (sort === 'Price Low to High') {
+      sortedTrips.sort((a, b) => a.trip.estimatedPrice - b.trip.estimatedPrice);
+    } else if (sort === 'Price High to Low') {
+      sortedTrips.sort((a, b) => b.trip.estimatedPrice - a.trip.estimatedPrice);
+    } else if (sort === 'Latest') {
+      sortedTrips.sort(
+        (a, b) =>
+          new Date(b.trip.createdAt).getTime() -
+          new Date(a.trip.createdAt).getTime()
+      );
+    }
+
+    const totalTrips = sortedTrips.length;
+
+    const paginatedTrips = sortedTrips.slice((page - 1) * limit, page * limit);
+
+    res.status(200).json({
+      success: true,
+      data: paginatedTrips,
+      pagination: {
+        totalItems: totalTrips,
+        currentPage: page,
+        totalPages: Math.ceil(totalTrips / limit),
+        pageSize: limit,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch trips' });
+  }
+};
+
+//delete user
+export const deleteUser = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Invalid user ID' });
+    }
+
+    const user = await UserModel.findOne({ _id: id, isDeleted: false });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found or already deleted' });
+    }
+
+    user.isDeleted = true;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to delete user' });
   }
 };
