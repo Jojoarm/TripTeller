@@ -205,7 +205,7 @@ const AllTrips = () => {
                       <img
                         src={`${data.trip.imageUrls[1]}`}
                         alt="trip picture"
-                        className=" object-cover w-full h-full "
+                        className=" rounded-full size-7 md:size-10 aspect-square"
                         referrerPolicy="no-referrer"
                       />
                     </div>

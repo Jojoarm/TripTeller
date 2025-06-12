@@ -11,6 +11,8 @@ export interface BookingType {
   bookingDate: Date;
   paymentMethod: string;
   isPaid: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const bookingSchema = new mongoose.Schema(

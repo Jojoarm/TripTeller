@@ -29,6 +29,65 @@ export function extractJson(raw: string) {
   }
 }
 
+// utils/dateRanges
+export const getDateRanges = () => {
+  const now = new Date();
+
+  // Today
+  const todayStart = new Date(now.setHours(0, 0, 0, 0));
+  const todayEnd = new Date(now.setHours(23, 59, 59, 999));
+
+  // Yesterday
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+  const yesterdayEnd = new Date(todayEnd);
+  yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
+
+  // This week (Monday to today)
+  const thisWeekStart = new Date();
+  thisWeekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+  thisWeekStart.setHours(0, 0, 0, 0);
+
+  // Last week (Monday to Sunday)
+  const lastWeekStart = new Date(thisWeekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+  const lastWeekEnd = new Date(thisWeekStart);
+  lastWeekEnd.setMilliseconds(-1);
+
+  // This month
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  // Last month
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  return {
+    today: { start: todayStart, end: todayEnd },
+    yesterday: { start: yesterdayStart, end: yesterdayEnd },
+    thisWeek: { start: thisWeekStart, end: new Date() },
+    lastWeek: { start: lastWeekStart, end: lastWeekEnd },
+    thisMonth: { start: thisMonthStart, end: thisMonthEnd },
+    lastMonth: { start: lastMonthStart, end: lastMonthEnd },
+  };
+};
+
 // const runMigration = async () => {
 //   try {
 //     await mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string);

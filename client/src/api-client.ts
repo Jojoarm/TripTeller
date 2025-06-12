@@ -224,6 +224,47 @@ export const createTrip = async (formData: TripFormData) => {
   }
 };
 
+//fetch dashboard data
+export const adminDashBoardData = async () => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/dashboard-data`, {
+    credentials: 'include',
+  });
+  const responseBody = await response.json();
+  if (!response.ok || !responseBody.success) {
+    throw new Error(responseBody.message || 'Failed fetch dashboard data');
+  }
+  return responseBody.dashboardData;
+};
+
+//fetch visitors stats
+export const adminFetchVisitorsStats = async (days: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/visitors-stats`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ days }),
+    credentials: 'include',
+  });
+  const responseBody = await response.json();
+  if (!response.ok || !responseBody.success) {
+    throw new Error(responseBody.message || 'Failed fetch visitors stats');
+  }
+  return responseBody;
+};
+
+//fetch bookings by travel style
+export const travelStyleData = async () => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/travel-style`, {
+    credentials: 'include',
+  });
+  const responseBody = await response.json();
+  if (!response.ok || !responseBody.success) {
+    throw new Error(
+      responseBody.message || 'Failed fetch bookings by travel style data'
+    );
+  }
+  return responseBody.data;
+};
+
 //fetch all users
 export const adminFetchUsers = async (params: URLSearchParams) => {
   const response = await fetch(`${API_BASE_URL}/api/admin/users?${params}`, {

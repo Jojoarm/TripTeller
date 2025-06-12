@@ -8,6 +8,7 @@ import adminRouter from './routes/adminRoutes';
 import tripRouter from './routes/tripRoutes';
 import bookingRouter from './routes/bookingRoutes';
 import { stripeWebhooks } from './controllers/stripeWebhookController';
+import { trackVisitor } from './middlewares/trackVisitor';
 
 const port = process.env.PORT || 3000;
 
@@ -20,6 +21,9 @@ app.use(
     credentials: true,
   })
 );
+
+//to track visitors to your site
+app.use(trackVisitor);
 
 //api to listen to stripe webhooks
 app.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhooks);
