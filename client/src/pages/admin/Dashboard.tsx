@@ -26,7 +26,7 @@ const Dashboard = () => {
     <div className="flex flex-col gap-10 items-start justify-between mb-10">
       <Title
         align="left"
-        title={`Welcome ${user?.username.split(' ')[0]} 👏`}
+        title={`Hello ${user?.username.split(' ')[0]}!`}
         subtitle="Track activity, trends and popular destinations in real time"
       />
 
@@ -80,14 +80,9 @@ const Dashboard = () => {
 
       <ChartArea visitorsCount={dashboardData.visitors} />
 
-      <div className="flex flex-wrap gap-3">
+      <div className="w-full flex flex-wrap gap-3">
+        <PieChartArea travelStyle={travelStyleData.budgets} title="Budget" />
         <PieChartArea
-          visitorsCount={dashboardData.visitors}
-          travelStyle={travelStyleData.budgets}
-          title="Budget"
-        />
-        <PieChartArea
-          visitorsCount={dashboardData.visitors}
           travelStyle={travelStyleData.interests}
           title="Interest"
         />

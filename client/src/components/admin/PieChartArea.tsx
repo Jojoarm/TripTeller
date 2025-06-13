@@ -19,7 +19,6 @@ const PieChartArea = ({
   travelStyle,
   title,
 }: {
-  visitorsCount: VisitorsCountData;
   travelStyle: travelStyleProps[];
   title: string;
 }) => {
@@ -42,7 +41,7 @@ const PieChartArea = ({
   );
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col w-full max-w-xs">
       <CardHeader className="items-center pb-0">
         <CardTitle>{`${title} Trends`}</CardTitle>
         <CardDescription>{`Total Bookings by ${title}`}</CardDescription>
@@ -58,7 +57,7 @@ const PieChartArea = ({
               data={chartData}
               dataKey="count"
               nameKey="option"
-              innerRadius={60}
+              innerRadius={50}
             />
             <ChartLegend
               content={<ChartLegendContent nameKey="option" />}

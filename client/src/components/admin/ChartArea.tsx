@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import * as apiClient from '../../api-client';
 import Loader from '../common/Loader';
 import { TrendingDown, TrendingUp } from 'lucide-react';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 import {
   ChartContainer,
@@ -123,7 +123,7 @@ const ChartArea = ({ visitorsCount }: { visitorsCount: VisitorsCountData }) => {
         </div>
       </div>
 
-      <div className="w-full m-auto">
+      <div className="w-full max-w-2xl m-auto">
         <ChartContainer config={chartConfig}>
           <AreaChart
             width={600}
@@ -145,8 +145,6 @@ const ChartArea = ({ visitorsCount }: { visitorsCount: VisitorsCountData }) => {
                 })
               }
             />
-
-            <YAxis tickLine={false} axisLine={false} tickMargin={8} />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
