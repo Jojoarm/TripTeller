@@ -1,9 +1,9 @@
 // GoogleLoginButton.tsx
 import { useEffect } from 'react';
-import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
+import { fetchWithAuth } from '@/lib/api';
 
 const GoogleLoginButton = () => {
   const queryClient = useQueryClient();
@@ -17,23 +17,26 @@ const GoogleLoginButton = () => {
     const { credential } = response;
 
     try {
-      const res = await axios.post(
-        `${API_BASE_URL}/api/users/google-auth`,
-        {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/users/google-auth`, {
+        method: 'POST',
+        body: JSON.stringify({
           tokenId: credential,
-        },
-        { withCredentials: true }
-      );
+        }),
+      });
 
-      if (res.data.success) {
+      const responseBody = await res.json();
+
+      if (responseBody.success) {
+        localStorage.setItem('auth_token', responseBody.token);
         queryClient.invalidateQueries({ queryKey: ['fetchUser'] });
         navigate(location.state?.from?.pathname || '/');
+        toast.success(responseBody.message || 'Login successful');
       } else {
-        toast.error(res.data.message);
+        toast.error(responseBody.message);
       }
     } catch (err) {
       console.error('Google login failed', err);
-      alert('Authentication failed');
+      toast.error('Authentication failed');
     }
   };
 
