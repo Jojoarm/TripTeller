@@ -6,23 +6,21 @@ import type { TripFormData } from './pages/admin/CreateTrip';
 import type { BookingFormData } from './components/user/BookingCard';
 import type { ForgotPasswordData } from './components/common/ForgotPassword';
 import type { ResetPasswordData } from './components/common/ResetPassword';
+import { fetchWithAuth } from './lib/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // USERS
 //create user
 export const createUser = async (formData: RegisterFormData) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/sign-up`, {
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/users/sign-up`, {
     method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(formData),
   });
 
   const responseBody = await response.json();
   if (responseBody.success) {
+    localStorage.setItem('auth_token', responseBody.token);
     toast.success(responseBody.message);
   } else {
     toast.error(responseBody.message);
@@ -32,16 +30,13 @@ export const createUser = async (formData: RegisterFormData) => {
 
 //sign-in user
 export const signInUser = async (formData: SignInFormData) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/sign-in`, {
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/users/sign-in`, {
     method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(formData),
   });
   const responseBody = await response.json();
   if (responseBody.success) {
+    localStorage.setItem('auth_token', responseBody.token);
     toast.success(responseBody.message);
   } else {
     toast.error(responseBody.message);
@@ -51,20 +46,18 @@ export const signInUser = async (formData: SignInFormData) => {
 
 //user logout
 export const logOut = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/users/logout`, {
-    credentials: 'include',
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/users/logout`, {
     method: 'POST',
   });
   if (!response.ok) {
     throw new Error('Error during signout');
   }
+  localStorage.removeItem('auth_token');
 };
 
 //fetchUser
 export const fetchUser = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/users/fetch-user`, {
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/users/fetch-user`);
   const responseBody = await response.json();
   if (responseBody.success) {
     return responseBody.userData;
@@ -76,11 +69,13 @@ export const fetchUser = async () => {
 
 //verify email
 export const verifyEmail = async (code: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/verify-email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code }),
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/users/verify-email`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }
+  );
   const responseBody = await response.json();
   if (responseBody.success) {
     return responseBody.userData;
@@ -91,14 +86,13 @@ export const verifyEmail = async (code: string) => {
 
 //save recent searches
 export const saveSearchedDestination = async (formData: SearchFormData) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/recent-search`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/users/recent-search`,
+    {
+      method: 'POST',
+      body: JSON.stringify(formData),
+    }
+  );
   if (!response.ok) {
     return null;
   }
@@ -122,14 +116,13 @@ export const fetchTrips = async (queryString?: string) => {
 
 //create booking
 export const createBooking = async (formData: BookingFormData) => {
-  const response = await fetch(`${API_BASE_URL}/api/bookings/create-booking`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/bookings/create-booking`,
+    {
+      method: 'POST',
+      body: JSON.stringify(formData),
+    }
+  );
 
   const responseBody = await response.json();
   if (responseBody.success) {
@@ -143,11 +136,8 @@ export const createBooking = async (formData: BookingFormData) => {
 
 //get user bookings
 export const getUserBookings = async (params: URLSearchParams) => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/bookings/user-bookings?${params}`,
-    {
-      credentials: 'include',
-    }
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/bookings/user-bookings?${params}`
   );
   const responseBody = await response.json();
   if (responseBody.success) {
@@ -159,9 +149,8 @@ export const getUserBookings = async (params: URLSearchParams) => {
 
 //send otp
 export const sendOtp = async (formData: ForgotPasswordData) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/send-otp`, {
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/users/send-otp`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(formData),
   });
   const responseBody = await response.json();
@@ -174,9 +163,8 @@ export const sendOtp = async (formData: ForgotPasswordData) => {
 
 //verify otp
 export const verifyOtp = async (code: string, email: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/verify-otp`, {
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/users/verify-otp`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, email }),
   });
   const responseBody = await response.json();
@@ -189,11 +177,13 @@ export const verifyOtp = async (code: string, email: string) => {
 
 //reset password
 export const resetPassword = async (formData: ResetPasswordData) => {
-  const response = await fetch(`${API_BASE_URL}/api/users/reset-password`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/users/reset-password`,
+    {
+      method: 'POST',
+      body: JSON.stringify(formData),
+    }
+  );
   const responseBody = await response.json();
   if (responseBody.success) {
     toast.success(responseBody.message);
@@ -206,14 +196,13 @@ export const resetPassword = async (formData: ResetPasswordData) => {
 
 //create trip by admin
 export const createTrip = async (formData: TripFormData) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/create-trip`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/create-trip`,
+    {
+      method: 'POST',
+      body: JSON.stringify(formData),
+    }
+  );
 
   const responseBody = await response.json();
   if (responseBody.success) {
@@ -226,9 +215,9 @@ export const createTrip = async (formData: TripFormData) => {
 
 //fetch dashboard data
 export const adminDashBoardData = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/dashboard-data`, {
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/dashboard-data`
+  );
   const responseBody = await response.json();
   if (!response.ok || !responseBody.success) {
     throw new Error(responseBody.message || 'Failed fetch dashboard data');
@@ -238,12 +227,13 @@ export const adminDashBoardData = async () => {
 
 //fetch visitors stats
 export const adminFetchVisitorsStats = async (days: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/visitors-stats`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ days }),
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/visitors-stats`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ days }),
+    }
+  );
   const responseBody = await response.json();
   if (!response.ok || !responseBody.success) {
     throw new Error(responseBody.message || 'Failed fetch visitors stats');
@@ -253,9 +243,9 @@ export const adminFetchVisitorsStats = async (days: string) => {
 
 //fetch bookings by travel style
 export const travelStyleData = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/travel-style`, {
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/travel-style`
+  );
   const responseBody = await response.json();
   if (!response.ok || !responseBody.success) {
     throw new Error(
@@ -267,9 +257,9 @@ export const travelStyleData = async () => {
 
 //fetch all users
 export const adminFetchUsers = async (params: URLSearchParams) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/users?${params}`, {
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/users?${params}`
+  );
   const responseBody = await response.json();
   if (responseBody.success) {
     return responseBody;
@@ -280,9 +270,9 @@ export const adminFetchUsers = async (params: URLSearchParams) => {
 
 //fetch all trips
 export const adminFetchTrips = async (params: URLSearchParams) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/trips?${params}`, {
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/trips?${params}`
+  );
   const responseBody = await response.json();
 
   if (!response.ok || !responseBody.success) {
@@ -294,10 +284,8 @@ export const adminFetchTrips = async (params: URLSearchParams) => {
 
 //change user role
 export const adminChangeUserRole = async (id: string, status: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/edit-role`, {
+  const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/edit-role`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify({ id, status }),
   });
   const responseBody = await response.json();
@@ -310,10 +298,12 @@ export const adminChangeUserRole = async (id: string, status: string) => {
 
 //delete user
 export const adminDeleteUser = async (id: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/admin/users/${id}`,
+    {
+      method: 'DELETE',
+    }
+  );
   const responseBody = await response.json();
   if (!response.ok || !responseBody.success) {
     throw new Error(responseBody.message || 'Failed to delete user');

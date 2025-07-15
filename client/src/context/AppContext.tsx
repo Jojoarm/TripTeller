@@ -67,10 +67,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     trips,
     isAuthLoading,
     API_BASE_URL,
-    // navigate,
-    // location,
   };
-  //   console.log('user', user);
+
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 

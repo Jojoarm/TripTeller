@@ -15,7 +15,15 @@ const verifyToken = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const token = req.cookies['auth_token'];
+  let token = req.cookies['auth_token'];
+
+  // If no cookie, check Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
   if (!token) {
     return res.status(401).json({ message: 'No Auth token!' });
   }

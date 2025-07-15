@@ -57,7 +57,11 @@ export const signUp = async (req: Request, res: Response): Promise<any> => {
 
     res
       .status(201)
-      .json({ success: true, message: 'User created successfully' });
+      .json({
+        success: true,
+        message: 'User created successfully',
+        token: token,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).send({ success: false, message: 'Error creating user' });
@@ -102,7 +106,12 @@ export const signIn = async (req: Request, res: Response): Promise<any> => {
 
     res
       .status(201)
-      .json({ success: true, message: 'Login Successful', userId: user._id });
+      .json({
+        success: true,
+        message: 'Login Successful',
+        userId: user._id,
+        token: token,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).send({ success: false, message: 'Error with user login!' });
@@ -163,6 +172,7 @@ export const googleAuth = async (req: Request, res: Response): Promise<any> => {
     res.status(201).json({
       success: true,
       message: 'User created successfully',
+      token: token,
     });
   } catch (error) {
     console.log(error);
