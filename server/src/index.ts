@@ -12,34 +12,47 @@ import { trackVisitor } from './middlewares/trackVisitor';
 
 const port = process.env.PORT || 3000;
 
-connectDB();
+const startServer = async () => {
+  try {
+    await connectDB();
 
-const app = express();
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
-);
+    const app = express();
+    app.use(
+      cors({
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
+      })
+    );
 
-//to track visitors to your site
-app.use(trackVisitor);
+    //to track visitors to your site
+    app.use(trackVisitor);
 
-//api to listen to stripe webhooks
-app.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhooks);
+    //api to listen to stripe webhooks
+    app.post(
+      '/webhook',
+      express.raw({ type: 'application/json' }),
+      stripeWebhooks
+    );
 
-app.use(express.json());
-app.use(cookieParser());
+    app.use(express.json());
+    app.use(cookieParser());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Api working');
-});
+    app.get('/', (req: Request, res: Response) => {
+      res.send('Api working');
+    });
 
-app.use('/api/users', userRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/trips', tripRouter);
-app.use('/api/bookings', bookingRouter);
+    app.use('/api/users', userRouter);
+    app.use('/api/admin', adminRouter);
+    app.use('/api/trips', tripRouter);
+    app.use('/api/bookings', bookingRouter);
 
-app.listen(port, () => {
-  console.log('Server running on localhost:', port);
-});
+    app.listen(port, () => {
+      console.log('Server running on localhost:', port);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server:', err);
+    process.exit(1); // Exit process if DB fails to connect
+  }
+};
+
+startServer();
